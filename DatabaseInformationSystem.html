@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CounseLink — Student Counseling Kiosk</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f172a;
+  --card: #1e293b;
+  --card-hover: #263248;
+  --accent: #facc15;
+  --accent-dark: #eab308;
+  --accent-glow: rgba(250,204,21,0.14);
+  --text: #f8fafc;
+  --muted: #94a3b8;
+  --border: #334155;
+  --input-bg: #0b1120;
+  --red: #ef4444;
+  --green: #22c55e;
+  --blue: #3b82f6;
+  --shadow: 0 4px 24px rgba(0,0,0,0.45);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);overflow:hidden}
+
+/* ── SCREENS ── */
+.screen{display:none;width:100%;height:100vh;overflow:hidden;flex-direction:column}
+.screen.active{display:flex}
+
+/* ── TOAST ── */
+#toast-wrap{position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:10px;pointer-events:none}
+.toast{background:var(--card);border:1px solid var(--border);color:var(--text);padding:13px 18px;border-radius:12px;font-size:13px;font-weight:500;box-shadow:var(--shadow);display:flex;align-items:center;gap:10px;max-width:310px;animation:toastIn .3s ease,toastOut .4s ease 3.2s forwards;pointer-events:auto}
+.toast.success{border-color:var(--green)}.toast.error{border-color:var(--red)}
+@keyframes toastIn{from{transform:translateX(120%);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes toastOut{to{transform:translateX(120%);opacity:0}}
+
+/* ── MODAL ── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(5px);z-index:1000;align-items:center;justify-content:center}
+.overlay.open{display:flex;animation:fadeIn .2s ease}
+.mbox{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:40px 48px;max-width:500px;width:92%;box-shadow:var(--shadow);animation:scaleIn .25s ease;max-height:92vh;overflow-y:auto}
+.mbox::-webkit-scrollbar{width:4px}.mbox::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes scaleIn{from{transform:scale(.93);opacity:0}to{transform:scale(1);opacity:1}}
+.mtitle{font-family:'Syne',sans-serif;font-size:21px;font-weight:800;color:var(--accent);margin-bottom:8px}
+.mdesc{color:var(--muted);font-size:13px;line-height:1.65;margin-bottom:26px}
+.mactions{display:flex;gap:10px;justify-content:flex-end;margin-top:24px}
+
+/* ── BUTTONS ── */
+.btn{padding:10px 22px;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;border:none;outline:none}
+.btn-primary{background:var(--accent);color:var(--bg)}.btn-primary:hover{background:var(--accent-dark);transform:translateY(-1px)}
+.btn-secondary{background:rgba(255,255,255,.05);color:var(--text);border:1px solid rgba(255,255,255,.12)}.btn-secondary:hover{background:rgba(255,255,255,.1)}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid transparent}.btn-ghost:hover{color:var(--text)}
+.btn-danger{background:var(--red);color:#fff}.btn-danger:hover{background:#dc2626}
+.btn-full{width:100%;padding:13px;font-size:15px}
+
+/* ── FORM ── */
+.fg{display:flex;flex-direction:column;gap:6px}
+.flabel{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.finput,.fselect{background:var(--input-bg);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:11px 15px;font-family:'DM Sans',sans-serif;font-size:14px;transition:border-color .2s,box-shadow .2s;outline:none;width:100%}
+.finput:focus,.fselect:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
+.finput.err{border-color:var(--red)!important}.fselect option{background:var(--card)}
+.finput::placeholder{color:#2d3f56}
+.ferr{color:var(--red);font-size:11px;font-weight:600;display:none;margin-top:2px}.ferr.show{display:block}
+.pw-wrap{position:relative}.pw-wrap .finput{padding-right:50px}
+.eye-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:3px 6px;transition:color .2s}.eye-btn:hover{color:var(--text)}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.ftextarea{background:var(--input-bg);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:12px 15px;font-family:'DM Sans',sans-serif;font-size:13px;resize:vertical;min-height:90px;outline:none;width:100%;transition:border-color .2s}.ftextarea:focus{border-color:var(--accent)}
+.divider{text-align:center;color:var(--muted);font-size:12px;position:relative;margin:4px 0}
+.divider::before,.divider::after{content:'';position:absolute;top:50%;width:44%;height:1px;background:var(--border)}
+.divider::before{left:0}.divider::after{right:0}
+
+/* ════════════════════════════════
+   KIOSK SCREEN  (public landing)
+════════════════════════════════ */
+#screen-kiosk{background:radial-gradient(ellipse at 50% -10%,rgba(250,204,21,.08) 0%,transparent 55%),var(--bg)}
+
+.kiosk-nav{background:rgba(15,23,42,.9);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.07);padding:16px 48px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:sticky;top:0;z-index:50}
+.kiosk-nav-logo{font-family:'Syne',sans-serif;font-size:19px;font-weight:800;color:var(--accent);letter-spacing:-.3px}
+.kiosk-nav-logo span{color:var(--text)}
+.kiosk-clock{color:var(--muted);font-size:14px;font-weight:500;font-variant-numeric:tabular-nums}
+.staff-link{font-size:12px;color:var(--border);cursor:pointer;background:none;border:none;transition:color .2s;padding:4px 8px;border-radius:6px}.staff-link:hover{color:var(--muted)}
+
+.kiosk-body{flex:1;overflow-y:auto;padding:52px 60px 60px}
+.kiosk-body::-webkit-scrollbar{width:6px}.kiosk-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+.kiosk-hero{text-align:center;margin-bottom:52px}
+.kiosk-hero-title{font-family:'Syne',sans-serif;font-size:40px;font-weight:800;line-height:1.1;letter-spacing:-.5px}
+.kiosk-hero-title em{color:var(--accent);font-style:normal}
+.kiosk-hero-sub{color:var(--muted);font-size:15px;margin-top:12px;max-width:480px;margin-left:auto;margin-right:auto;line-height:1.6}
+
+.search-bar{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:11px 20px;max-width:420px;margin:0 auto 48px;transition:border-color .2s}
+.search-bar:focus-within{border-color:var(--accent)}
+.search-bar input{background:transparent;border:none;outline:none;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;width:100%}
+.search-bar input::placeholder{color:var(--border)}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(228px,1fr));gap:22px}
+
+.c-card{background:var(--card);border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:34px 22px 26px;display:flex;flex-direction:column;align-items:center;transition:all .25s;box-shadow:0 2px 12px rgba(0,0,0,.3);cursor:default}
+.c-card.avail:hover{background:var(--card-hover);transform:translateY(-3px);box-shadow:0 8px 30px rgba(0,0,0,.4)}
+.c-card.offline{opacity:.65}
+
+.avatar{width:70px;height:70px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:21px;font-weight:800;margin-bottom:16px;flex-shrink:0}
+.avatar.avail{background:rgba(250,204,21,.12);color:var(--accent);border:2px solid rgba(250,204,21,.35)}
+.avatar.offline{background:rgba(148,163,184,.1);color:var(--muted);border:2px solid rgba(148,163,184,.18)}
+
+.c-name{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;text-align:center;margin-bottom:3px}
+.c-dept{font-size:11px;color:var(--muted);text-align:center;margin-bottom:12px;text-transform:uppercase;letter-spacing:.05em}
+.c-status{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;margin-bottom:20px}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.dot.avail{background:var(--green);box-shadow:0 0 7px var(--green)}.dot.offline{background:var(--muted)}
+
+.book-btn{width:100%;padding:10px;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;border:none;cursor:pointer;transition:all .2s;margin-top:auto}
+.book-btn.avail{background:var(--accent);color:var(--bg)}.book-btn.avail:hover{background:var(--accent-dark)}
+.book-btn.offline{background:rgba(255,255,255,.05);color:var(--muted);cursor:not-allowed;border:1px solid rgba(255,255,255,.08)}
+
+.no-results{text-align:center;padding:60px 20px;color:var(--muted);font-size:14px;grid-column:1/-1}
+
+/* ════════════════════════════════
+   BOOKING MODAL
+════════════════════════════════ */
+#modal-book .mbox{max-width:580px}
+.book-header{margin-bottom:24px}
+.book-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:4px}
+.book-counselor{color:var(--accent);font-size:14px;font-weight:600}
+.book-form{display:flex;flex-direction:column;gap:14px}
+
+/* ════════════════════════════════
+   POST-BOOKING: OPTIONAL LOGIN
+════════════════════════════════ */
+#screen-postbook{align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 50%,rgba(250,204,21,.06) 0%,transparent 60%),var(--bg)}
+.postbook-card{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:52px 56px;max-width:460px;width:92%;box-shadow:var(--shadow);text-align:center;animation:cardUp .5s ease}
+@keyframes cardUp{from{transform:translateY(18px);opacity:0}to{transform:translateY(0);opacity:1}}
+.pb-check{width:68px;height:68px;border-radius:50%;background:rgba(34,197,94,.12);border:2px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 22px}
+.pb-title{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;margin-bottom:10px}
+.pb-detail{color:var(--muted);font-size:13px;line-height:1.7;margin-bottom:28px}
+.pb-detail strong{color:var(--text)}
+.pb-divider{border:none;border-top:1px solid var(--border);margin:24px 0}
+.pb-prompt-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:6px}
+.pb-prompt-sub{color:var(--muted);font-size:12px;margin-bottom:18px;line-height:1.5}
+.pb-actions{display:flex;flex-direction:column;gap:10px}
+.pb-skip{color:var(--muted);font-size:12px;margin-top:6px;cursor:pointer;background:none;border:none;transition:color .2s;padding:4px}.pb-skip:hover{color:var(--text)}
+
+/* ════════════════════════════════
+   SIGN IN (staff + student)
+════════════════════════════════ */
+#screen-signin{align-items:center;justify-content:center;background:radial-gradient(ellipse at 60% 0%,rgba(250,204,21,.07) 0%,transparent 55%),var(--bg)}
+.signin-card{background:var(--card);border-radius:24px;border:1px solid var(--border);padding:50px 54px;width:430px;max-width:94vw;box-shadow:var(--shadow);animation:cardUp .5s ease}
+.si-logo{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:var(--accent);margin-bottom:4px}
+.si-logo span{color:var(--text)}
+.si-sub{color:var(--muted);font-size:12px;margin-bottom:32px}
+.si-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:24px}
+.si-form{display:flex;flex-direction:column;gap:16px}
+.si-back{font-size:12px;color:var(--muted);background:none;border:none;cursor:pointer;margin-top:14px;transition:color .2s;display:block;text-align:center}.si-back:hover{color:var(--text)}
+
+/* ════════════════════════════════
+   SIGN UP
+════════════════════════════════ */
+#screen-signup{align-items:center;justify-content:center;overflow-y:auto;background:radial-gradient(ellipse at 30% 100%,rgba(250,204,21,.05) 0%,transparent 55%),var(--bg)}
+.signup-card{background:var(--card);border-radius:24px;border:1px solid var(--border);padding:46px 50px;width:800px;max-width:95vw;box-shadow:var(--shadow);margin:36px auto;animation:cardUp .4s ease}
+.su-title{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:var(--accent);margin-bottom:4px}
+.su-desc{color:var(--muted);font-size:12px;margin-bottom:32px}
+.su-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 28px}
+.su-section{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--text);letter-spacing:.09em;text-transform:uppercase;grid-column:1/-1;padding-bottom:6px;border-bottom:1px solid var(--border);margin-top:6px}
+.su-actions{display:flex;justify-content:space-between;align-items:center;margin-top:28px}
+
+/* ════════════════════════════════
+   COUNSELOR PORTAL
+════════════════════════════════ */
+#screen-counselor{overflow:hidden}
+.portal-wrap{display:flex;flex:1;overflow:hidden}
+.sidebar{width:230px;background:var(--card);border-right:1px solid var(--border);padding:24px 14px;display:flex;flex-direction:column;gap:3px;flex-shrink:0}
+.sb-logo{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:var(--accent);padding:6px 12px;margin-bottom:18px}
+.sb-item{padding:10px 13px;border-radius:10px;cursor:pointer;transition:all .2s;font-size:13px;font-weight:600;color:var(--muted);display:flex;align-items:center;gap:9px;background:none;border:none;width:100%;text-align:left}
+.sb-item:hover{background:rgba(255,255,255,.05);color:var(--text)}.sb-item.active{background:var(--accent-glow);color:var(--accent)}
+.sb-bottom{margin-top:auto}
+
+.portal-main{flex:1;overflow-y:auto;padding:34px 38px;background:var(--bg)}
+.portal-main::-webkit-scrollbar{width:6px}.portal-main::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.ph-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:4px}
+.ph-sub{color:var(--muted);font-size:13px;margin-bottom:24px}
+
+.tbl-wrap{background:var(--card);border-radius:14px;border:1px solid var(--border);overflow:hidden;margin-bottom:18px}
+table{width:100%;border-collapse:collapse}
+thead th{background:var(--bg);color:var(--muted);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:13px 18px;text-align:left}
+tbody tr{border-top:1px solid var(--border);transition:background .15s}
+tbody tr:hover{background:rgba(255,255,255,.025)}
+tbody td{padding:13px 18px;font-size:13px}
+
+.tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.tag-session{background:rgba(250,204,21,.12);color:var(--accent)}
+.tag-event{background:rgba(59,130,246,.12);color:var(--blue)}
+.tag-finished{background:rgba(34,197,94,.12);color:var(--green)}
+.tag-pending{background:rgba(250,204,21,.12);color:var(--accent)}
+.tag-cancelled{background:rgba(239,68,68,.12);color:var(--red)}
+
+.toggle-row{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px 16px;cursor:pointer;transition:border-color .2s;width:fit-content}.toggle-row:hover{border-color:var(--accent)}
+.sw{width:38px;height:21px;border-radius:11px;background:var(--border);position:relative;transition:background .25s;flex-shrink:0}
+.sw.on{background:var(--green)}.sw::after{content:'';position:absolute;width:15px;height:15px;background:#fff;border-radius:50%;top:3px;left:3px;transition:left .25s}.sw.on::after{left:20px}
+.sw-label{font-size:13px;font-weight:600;color:var(--muted)}.sw-label.on{color:var(--green)}
+
+.session-card{background:var(--card);border-radius:18px;border:1px solid var(--border);padding:30px 34px;box-shadow:var(--shadow)}
+.session-student{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--accent);margin-bottom:22px}
+.session-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.sess-actions{display:flex;justify-content:space-between;align-items:center;margin-top:22px}
+
+/* tabs */
+.tab-bar{display:flex;gap:2px;background:var(--card);border-bottom:1px solid var(--border);padding:0 38px;flex-shrink:0}
+.tab-btn{padding:13px 18px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;background:none;border:none;border-bottom:2px solid transparent;transition:all .2s;margin-bottom:-1px}
+.tab-btn:hover{color:var(--text)}.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab-pane{display:none;flex:1;overflow:hidden;flex-direction:column}.tab-pane.active{display:flex}
+
+/* Notif popup */
+.notif-pop{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:var(--card);border:2px solid var(--accent);border-radius:16px;padding:22px 30px;z-index:9999;box-shadow:var(--shadow),0 0 40px rgba(250,204,21,.18);text-align:center;min-width:290px;animation:dropBounce .4s cubic-bezier(.34,1.56,.64,1)}
+.notif-pop.cancel-pop{border-color:var(--red);box-shadow:var(--shadow),0 0 40px rgba(239,68,68,.18)}
+@keyframes dropBounce{from{transform:translateX(-50%) translateY(-60px);opacity:0}to{transform:translateX(-50%) translateY(0);opacity:1}}
+.np-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;margin-bottom:5px}
+.np-msg{color:var(--muted);font-size:12px;margin-bottom:18px;line-height:1.5}
+.np-btns{display:flex;gap:8px;justify-content:center}
+
+/* ════════════════════════════════
+   ADMIN PORTAL
+════════════════════════════════ */
+#screen-admin{overflow:hidden}
+.admin-wrap{display:flex;flex:1;overflow:hidden}
+.admin-main{flex:1;overflow-y:auto;padding:34px 38px;background:var(--bg)}
+.admin-main::-webkit-scrollbar{width:6px}.admin-main::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.asec{display:none}.asec.active{display:block}
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px 22px}
+.stat-val{font-family:'Syne',sans-serif;font-size:30px;font-weight:800}
+.stat-lbl{color:var(--muted);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-top:4px}
+.tbl-toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px}
+.srch-wrap{position:relative}
+.tbl-search{background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:9px 13px 9px 36px;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border-color .2s;width:240px}
+.tbl-search:focus{border-color:var(--accent)}.tbl-search::placeholder{color:var(--border)}
+.srch-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--muted)}
+.al{color:var(--accent);font-size:13px;font-weight:700;cursor:pointer}.al:hover{color:var(--accent-dark)}
+.al-r{color:var(--red);font-size:13px;font-weight:700;cursor:pointer}.al-r:hover{color:#dc2626}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.badge-on{background:rgba(34,197,94,.12);color:var(--green)}.badge-off{background:rgba(148,163,184,.1);color:var(--muted)}
+
+/* nav bar shared */
+.top-nav{background:rgba(15,23,42,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.07);padding:14px 38px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.top-nav-logo{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;color:var(--accent)}
+.top-nav-logo span{color:var(--text)}
+.top-nav-user{color:var(--muted);font-size:13px;font-weight:600}
+</style>
+</head>
+<body>
+
+<div id="toast-wrap"></div>
+
+<!-- ══════════════════════════════════════════
+     MODALS
+══════════════════════════════════════════ -->
+
+<!-- Booking Modal -->
+<div class="overlay" id="modal-book">
+  <div class="mbox">
+    <div class="book-header">
+      <div class="book-title">Book a Session</div>
+      <div class="book-counselor" id="bk-counselor-label">Counselor: —</div>
+    </div>
+    <div class="book-form">
+      <div class="frow">
+        <div class="fg">
+          <label class="flabel">Full Name</label>
+          <input class="finput" id="bk-name" placeholder="e.g. Juan Dela Cruz">
+          <span class="ferr" id="e-bk-name">Full name is required.</span>
+        </div>
+        <div class="fg">
+          <label class="flabel">College / Course</label>
+          <input class="finput" id="bk-dept" placeholder="e.g. BSIT">
+          <span class="ferr" id="e-bk-dept">Course is required.</span>
+        </div>
+      </div>
+      <div class="frow">
+        <div class="fg">
+          <label class="flabel">Email Address</label>
+          <input class="finput" id="bk-email" placeholder="you@school.edu" type="email">
+          <span class="ferr" id="e-bk-email">Enter a valid email address.</span>
+        </div>
+        <div class="fg">
+          <label class="flabel">Contact Number</label>
+          <input class="finput" id="bk-contact" placeholder="09XXXXXXXXX" maxlength="11">
+          <span class="ferr" id="e-bk-contact">Enter a valid 11-digit number.</span>
+        </div>
+      </div>
+      <div class="frow">
+        <div class="fg">
+          <label class="flabel">Preferred Date</label>
+          <input class="finput" type="date" id="bk-date">
+          <span class="ferr" id="e-bk-date">Please select a date.</span>
+        </div>
+        <div class="fg">
+          <label class="flabel">Preferred Time</label>
+          <select class="fselect" id="bk-time">
+            <option value="">— Select a time —</option>
+            <option>08:00 AM</option><option>09:00 AM</option><option>10:00 AM</option>
+            <option>11:00 AM</option><option>01:00 PM</option><option>02:00 PM</option>
+            <option>03:00 PM</option><option>04:00 PM</option>
+          </select>
+          <span class="ferr" id="e-bk-time">Please select a time slot.</span>
+        </div>
+      </div>
+      <div class="fg">
+        <label class="flabel">Concern / Topic</label>
+        <select class="fselect" id="bk-topic">
+          <option value="">— Choose a topic —</option>
+          <option>Academic Issue</option>
+          <option>Personal Matter</option>
+          <option>Career Guidance</option>
+          <option>Financial Concern</option>
+          <option>Mental Health &amp; Wellness</option>
+          <option>Other</option>
+        </select>
+        <span class="ferr" id="e-bk-topic">Please select a topic.</span>
+      </div>
+      <div class="fg">
+        <label class="flabel">Brief Description <span style="color:var(--border);font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
+        <textarea class="ftextarea" id="bk-desc" placeholder="Briefly describe your concern…"></textarea>
+      </div>
+    </div>
+    <div class="mactions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-book')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitBooking()">Confirm Booking</button>
+    </div>
+  </div>
+</div>
+
+<!-- Sign-out confirm -->
+<div class="overlay" id="modal-signout">
+  <div class="mbox" style="max-width:400px">
+    <div class="mtitle">Sign Out?</div>
+    <div class="mdesc">You will be returned to the kiosk. Any unsaved work will be lost.</div>
+    <div class="mactions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-signout')">Cancel</button>
+      <button class="btn btn-danger" onclick="doSignOut()">Sign Out</button>
+    </div>
+  </div>
+</div>
+
+<!-- Admin: Add Counselor -->
+<div class="overlay" id="modal-add-c">
+  <div class="mbox" style="max-width:420px">
+    <div class="mtitle">Add Counselor</div>
+    <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:4px">
+      <div class="fg"><label class="flabel">First Name</label><input class="finput" id="ac-fn" placeholder="e.g. Maria"><span class="ferr" id="e-ac-fn">Required.</span></div>
+      <div class="fg"><label class="flabel">Last Name</label><input class="finput" id="ac-ln" placeholder="e.g. Santos"><span class="ferr" id="e-ac-ln">Required.</span></div>
+      <div class="fg"><label class="flabel">Email</label><input class="finput" id="ac-em" placeholder="counselor@school.edu"><span class="ferr" id="e-ac-em">Enter a valid email.</span></div>
+      <div class="fg"><label class="flabel">Department / Specialization</label><input class="finput" id="ac-dp" placeholder="e.g. Psychology"><span class="ferr" id="e-ac-dp">Required.</span></div>
+    </div>
+    <div class="mactions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-add-c')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitAddCounselor()">Add Counselor</button>
+    </div>
+  </div>
+</div>
+
+<!-- Admin: Add Student -->
+<div class="overlay" id="modal-add-s">
+  <div class="mbox" style="max-width:500px">
+    <div class="mtitle">Add Student</div>
+    <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:4px">
+      <div class="frow">
+        <div class="fg"><label class="flabel">First Name</label><input class="finput" id="as-fn" placeholder="First"><span class="ferr" id="e-as-fn">Required.</span></div>
+        <div class="fg"><label class="flabel">Last Name</label><input class="finput" id="as-ln" placeholder="Last"><span class="ferr" id="e-as-ln">Required.</span></div>
+      </div>
+      <div class="fg"><label class="flabel">Student Number</label><input class="finput" id="as-sn" placeholder="e.g. 2024-00001"><span class="ferr" id="e-as-sn">Required.</span></div>
+      <div class="fg"><label class="flabel">Email</label><input class="finput" id="as-em" placeholder="student@school.edu"><span class="ferr" id="e-as-em">Enter a valid email.</span></div>
+      <div class="frow">
+        <div class="fg"><label class="flabel">Course</label><input class="finput" id="as-co" placeholder="BSIT"><span class="ferr" id="e-as-co">Required.</span></div>
+        <div class="fg"><label class="flabel">Year Level</label><select class="fselect" id="as-yr"><option>1</option><option>2</option><option>3</option><option>4</option></select></div>
+      </div>
+    </div>
+    <div class="mactions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-add-s')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitAddStudent()">Add Student</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete confirm -->
+<div class="overlay" id="modal-del">
+  <div class="mbox" style="max-width:400px">
+    <div class="mtitle" style="color:var(--red)">Remove Record</div>
+    <div class="mdesc" id="del-msg">Are you sure? This cannot be undone.</div>
+    <div class="mactions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-del')">Cancel</button>
+      <button class="btn btn-danger" id="del-confirm-btn">Remove</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SCREEN: KIOSK  (public landing)
+══════════════════════════════════════════ -->
+<div class="screen active" id="screen-kiosk">
+  <nav class="kiosk-nav">
+    <div class="kiosk-nav-logo">Counsel<span>Link</span></div>
+    <div class="kiosk-clock" id="kiosk-clock">--:-- --</div>
+    <button class="staff-link" onclick="showScreen('signin','staff')">Staff Portal</button>
+  </nav>
+  <div class="kiosk-body">
+    <div class="kiosk-hero">
+      <div class="kiosk-hero-title">Book a <em>Counseling</em> Session</div>
+      <div class="kiosk-hero-sub">Browse available counselors and schedule your session — no account needed.</div>
+    </div>
+    <div class="search-bar">
+      <svg width="15" height="15" fill="none" stroke="var(--muted)" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input id="c-search" placeholder="Search counselors by name or department…" oninput="filterCounselors()">
+    </div>
+    <div class="grid" id="counselors-grid"></div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SCREEN: POST-BOOKING  (optional login)
+══════════════════════════════════════════ -->
+<div class="screen" id="screen-postbook">
+  <div class="postbook-card">
+    <div class="pb-check">✓</div>
+    <div class="pb-title">Session Booked!</div>
+    <div class="pb-detail" id="pb-detail">
+      Your session with <strong id="pb-counselor">—</strong> has been scheduled for <strong id="pb-datetime">—</strong>.
+    </div>
+    <hr class="pb-divider">
+    <div class="pb-prompt-title">Save your booking history?</div>
+    <div class="pb-prompt-sub">Create a free account or sign in to track your sessions and receive reminders. This step is completely optional.</div>
+    <div class="pb-actions">
+      <button class="btn btn-primary btn-full" onclick="showScreen('signup','student')">Create an Account</button>
+      <button class="btn btn-secondary btn-full" onclick="showScreen('signin','student')">Sign In to Existing Account</button>
+    </div>
+    <button class="pb-skip" onclick="showScreen('kiosk')">Skip — return to kiosk</button>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SCREEN: SIGN IN
+══════════════════════════════════════════ -->
+<div class="screen" id="screen-signin">
+  <div class="signin-card" id="signin-card">
+    <div class="si-logo">Counsel<span>Link</span></div>
+    <div class="si-sub" id="si-context-sub">Sign in to your account</div>
+    <div class="si-title" id="si-title">Welcome back</div>
+    <div class="si-form">
+      <div class="fg">
+        <label class="flabel">Email Address</label>
+        <input class="finput" id="si-email" placeholder="you@school.edu" onkeydown="if(event.key==='Enter')doSignIn()">
+        <span class="ferr" id="e-si-email">Enter a valid email address.</span>
+      </div>
+      <div class="fg">
+        <label class="flabel">Password</label>
+        <div class="pw-wrap">
+          <input class="finput" type="password" id="si-pw" placeholder="••••••••" onkeydown="if(event.key==='Enter')doSignIn()">
+          <button class="eye-btn" onclick="togglePw('si-pw',this)" tabindex="-1">👁</button>
+        </div>
+        <span class="ferr" id="e-si-pw">Password is required.</span>
+      </div>
+      <button class="btn btn-primary btn-full" onclick="doSignIn()">Sign In</button>
+      <div class="divider">or</div>
+      <button class="btn btn-secondary btn-full" id="si-signup-btn" onclick="showScreen('signup','student')">Create an Account</button>
+    </div>
+    <button class="si-back" onclick="showScreen('kiosk')">← Back to Kiosk</button>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SCREEN: SIGN UP
+══════════════════════════════════════════ -->
+<div class="screen" id="screen-signup">
+  <div class="signup-card">
+    <div class="su-title">Create Account</div>
+    <div class="su-desc">All fields are required unless noted otherwise.</div>
+    <div class="su-grid">
+      <div class="su-section">Personal Information</div>
+      <div class="fg"><label class="flabel">First Name</label><input class="finput" id="su-fn" placeholder="Juan"><span class="ferr" id="e-su-fn">Required.</span></div>
+      <div class="fg"><label class="flabel">Last Name</label><input class="finput" id="su-ln" placeholder="Dela Cruz"><span class="ferr" id="e-su-ln">Required.</span></div>
+      <div class="fg"><label class="flabel">Course</label><input class="finput" id="su-co" placeholder="e.g. BSIT"><span class="ferr" id="e-su-co">Required.</span></div>
+      <div class="fg"><label class="flabel">Student Number</label><input class="finput" id="su-sn" placeholder="e.g. 2024-00001"><span class="ferr" id="e-su-sn">Required.</span></div>
+      <div class="fg"><label class="flabel">Year Level</label><select class="fselect" id="su-yr"><option>1</option><option>2</option><option>3</option><option>4</option></select></div>
+      <div></div>
+      <div class="su-section">Contact &amp; Security</div>
+      <div class="fg"><label class="flabel">Email Address</label><input class="finput" id="su-em" placeholder="you@email.com"><span class="ferr" id="e-su-em">Enter a valid email.</span></div>
+      <div class="fg"><label class="flabel">Contact Number</label><input class="finput" id="su-cn" placeholder="09XXXXXXXXX" maxlength="11"><span class="ferr" id="e-su-cn">Enter a valid 11-digit number.</span></div>
+      <div class="fg"><label class="flabel">Password</label><div class="pw-wrap"><input class="finput" type="password" id="su-pw" placeholder="At least 8 characters"><button class="eye-btn" onclick="togglePw('su-pw',this)" tabindex="-1">👁</button></div><span class="ferr" id="e-su-pw">Must be at least 8 characters.</span></div>
+      <div class="fg"><label class="flabel">Confirm Password</label><div class="pw-wrap"><input class="finput" type="password" id="su-cp" placeholder="Re-enter password"><button class="eye-btn" onclick="togglePw('su-cp',this)" tabindex="-1">👁</button></div><span class="ferr" id="e-su-cp">Passwords do not match.</span></div>
+    </div>
+    <div class="su-actions">
+      <button class="btn btn-secondary" onclick="showScreen('kiosk')">← Back to Kiosk</button>
+      <button class="btn btn-primary" style="padding:12px 34px" onclick="doSignUp()">Create Account</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SCREEN: COUNSELOR PORTAL
+══════════════════════════════════════════ -->
+<div class="screen" id="screen-counselor">
+  <div class="top-nav">
+    <div class="top-nav-logo">Counsel<span>Link</span> <span style="font-size:12px;font-weight:400;color:var(--muted);margin-left:6px">Counselor Portal</span></div>
+    <div class="top-nav-user" id="c-greeting">—</div>
+    <button class="btn btn-secondary" style="font-size:13px;padding:8px 16px" onclick="openModal('modal-signout')">Sign Out</button>
+  </div>
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="cTab('schedule',this)">📅 My Schedule</button>
+    <button class="tab-btn" onclick="cTab('session',this)">👤 Active Session</button>
+    <button class="tab-btn" onclick="cTab('history',this)">📋 Session History</button>
+  </div>
+  <!-- Schedule tab -->
+  <div class="tab-pane active" id="ctab-schedule">
+    <div class="portal-main">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:14px">
+        <div>
+          <div class="ph-title">My Schedule</div>
+          <div class="ph-sub" id="today-label">—</div>
+        </div>
+        <div class="toggle-row" onclick="toggleStatus(this)">
+          <div class="sw" id="status-sw"></div>
+          <span class="sw-label" id="status-lbl">Offline</span>
+        </div>
+      </div>
+      <div class="tbl-wrap">
+        <table><thead><tr><th>Type</th><th>Name / Details</th><th>Time</th><th>Action</th></tr></thead>
+        <tbody id="sched-tbody"></tbody></table>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="simulateIncoming()">Simulate Incoming Session</button>
+        <button class="btn btn-secondary" onclick="simulateCancel()">Simulate Cancellation</button>
+      </div>
+    </div>
+  </div>
+  <!-- Active session tab -->
+  <div class="tab-pane" id="ctab-session">
+    <div class="portal-main">
+      <div class="ph-title" style="margin-bottom:20px">Active Session</div>
+      <div class="session-card">
+        <div class="session-student" id="active-student">—</div>
+        <div class="session-grid">
+          <div class="fg"><label class="flabel">Topic</label>
+            <select class="fselect" id="sess-topic"><option>Academic Issue</option><option>Personal Matter</option><option>Career Guidance</option><option>Mental Health &amp; Wellness</option><option>Other</option></select>
+          </div>
+          <div></div>
+          <div class="fg">
+            <label class="flabel" style="display:flex;justify-content:space-between;align-items:center">Recommendation <button class="btn btn-secondary" style="padding:2px 8px;font-size:11px;font-weight:600" onclick="copyField('sess-rec')">Copy</button></label>
+            <textarea class="ftextarea" id="sess-rec" placeholder="Write your recommendation here…"></textarea>
+          </div>
+          <div class="fg">
+            <label class="flabel" style="display:flex;justify-content:space-between;align-items:center">Session Notes <button class="btn btn-secondary" style="padding:2px 8px;font-size:11px;font-weight:600" onclick="copyField('sess-notes')">Copy</button></label>
+            <textarea class="ftextarea" id="sess-notes" placeholder="Private notes for this session…"></textarea>
+          </div>
+        </div>
+        <div class="sess-actions">
+          <button class="btn btn-secondary" onclick="cTab('schedule',null)">← Back</button>
+          <div style="display:flex;gap:10px">
+            <button class="btn btn-secondary" onclick="toast('Notes saved.','success')">Save Draft</button>
+            <button class="btn btn-primary" onclick="finishSession()">Finish Session ✓</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- History tab -->
+  <div class="tab-pane" id="ctab-history">
+    <div class="portal-main">
+      <div class="ph-title">Session History</div>
+      <div class="ph-sub">All completed sessions.</div>
+      <div class="tbl-wrap"><table><thead><tr><th>Student</th><th>Topic</th><th>Date</th><th>Status</th></tr></thead>
+      <tbody id="hist-tbody"></tbody></table></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SCREEN: ADMIN PORTAL
+══════════════════════════════════════════ -->
+<div class="screen" id="screen-admin">
+  <div class="top-nav">
+    <div class="top-nav-logo">Counsel<span>Link</span> <span style="font-size:12px;font-weight:400;color:var(--muted);margin-left:6px">Admin Portal</span></div>
+    <div class="top-nav-user">Administrator</div>
+    <button class="btn btn-secondary" style="font-size:13px;padding:8px 16px" onclick="openModal('modal-signout')">Sign Out</button>
+  </div>
+  <div class="admin-wrap">
+    <div class="sidebar">
+      <div class="sb-logo">CounselLink</div>
+      <button class="sb-item active" onclick="aSection('dashboard',this)"><span>🏠</span>Dashboard</button>
+      <button class="sb-item" onclick="aSection('counselors',this)"><span>🧑‍💼</span>Counselors</button>
+      <button class="sb-item" onclick="aSection('students',this)"><span>🎓</span>Students</button>
+      <button class="sb-item" onclick="aSection('sessions',this)"><span>📋</span>Sessions</button>
+      <div class="sb-bottom">
+        <button class="sb-item" onclick="openModal('modal-signout')"><span>🚪</span>Sign Out</button>
+      </div>
+    </div>
+    <div class="admin-main">
+      <!-- Dashboard -->
+      <div class="asec active" id="asec-dashboard">
+        <div class="ph-title">Dashboard</div>
+        <div class="ph-sub">System overview</div>
+        <div class="stat-row">
+          <div class="stat-card"><div class="stat-val" id="st-c">—</div><div class="stat-lbl">Counselors</div></div>
+          <div class="stat-card"><div class="stat-val" id="st-s">—</div><div class="stat-lbl">Students</div></div>
+          <div class="stat-card"><div class="stat-val" id="st-b">—</div><div class="stat-lbl">Total Sessions</div></div>
+        </div>
+        <div class="tbl-wrap"><table><thead><tr><th>#</th><th>Student</th><th>Counselor</th><th>Status</th><th>Date / Time</th></tr></thead>
+        <tbody id="recent-tbody"></tbody></table></div>
+      </div>
+      <!-- Counselors -->
+      <div class="asec" id="asec-counselors">
+        <div class="ph-title">Manage Counselors</div>
+        <div class="tbl-toolbar">
+          <div class="srch-wrap">
+            <svg class="srch-icon" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input class="tbl-search" placeholder="Search counselors…" oninput="filterTbl('adm-c-tbody',this.value)">
+          </div>
+          <button class="btn btn-primary" onclick="openModal('modal-add-c')">+ Add Counselor</button>
+        </div>
+        <div class="tbl-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Department</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="adm-c-tbody"></tbody></table></div>
+      </div>
+      <!-- Students -->
+      <div class="asec" id="asec-students">
+        <div class="ph-title">Manage Students</div>
+        <div class="tbl-toolbar">
+          <div class="srch-wrap">
+            <svg class="srch-icon" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input class="tbl-search" placeholder="Search students…" oninput="filterTbl('adm-s-tbody',this.value)">
+          </div>
+          <button class="btn btn-primary" onclick="openModal('modal-add-s')">+ Add Student</button>
+        </div>
+        <div class="tbl-wrap"><table><thead><tr><th>Name</th><th>Student No.</th><th>Course</th><th>Email</th><th>Year</th><th>Actions</th></tr></thead>
+        <tbody id="adm-s-tbody"></tbody></table></div>
+      </div>
+      <!-- Sessions -->
+      <div class="asec" id="asec-sessions">
+        <div class="ph-title">Manage Sessions</div>
+        <div class="tbl-toolbar">
+          <div class="srch-wrap">
+            <svg class="srch-icon" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input class="tbl-search" placeholder="Search sessions…" oninput="filterTbl('adm-b-tbody',this.value)">
+          </div>
+          <select class="fselect" style="width:160px;padding:9px 13px" onchange="filterSessionStatus(this.value)">
+            <option value="">All Statuses</option><option>Pending</option><option>Finished</option><option>Cancelled</option>
+          </select>
+        </div>
+        <div class="tbl-wrap"><table><thead><tr><th>#</th><th>Student</th><th>Counselor</th><th>Topic</th><th>Date / Time</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="adm-b-tbody"></tbody></table></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+// ─────────────────────────────────
+// DATA
+// ─────────────────────────────────
+const USERS = [
+  { email:'counselor1@school.edu', password:'counselor1', role:'Counselor', name:'Maria Santos' },
+  { email:'counselor2@school.edu', password:'counselor2', role:'Counselor', name:'Jose Reyes' },
+  { email:'counselor3@school.edu', password:'counselor3', role:'Counselor', name:'Anne Cruz' },
+  { email:'counselor4@school.edu', password:'counselor4', role:'Counselor', name:'Marco Garcia' },
+  { email:'admin@school.edu',     password:'admin123',     role:'Admin',     name:'Admin' },
+];
+
+let COUNSELORS = [
+  { id:1, fname:'Maria',  lname:'Santos',  email:'msantos@school.edu',  dept:'Psychology',   available:true  },
+  { id:2, fname:'Jose',   lname:'Reyes',   email:'jreyes@school.edu',   dept:'BSED',         available:false },
+  { id:3, fname:'Anna',   lname:'Cruz',    email:'acruz@school.edu',    dept:'Social Work',  available:true  },
+  { id:4, fname:'Marco',  lname:'Garcia',  email:'mgarcia@school.edu',  dept:'Guidance',     available:true  },
+];
+let C_SEQ = 5;
+
+let STUDENTS = [
+  { id:1, fname:'Jake',  lname:'Doe',    studnum:'2024-00001', email:'jake@student.edu',    course:'BSIT', year:3 },
+  { id:2, fname:'Maria', lname:'Santos', studnum:'2024-00002', email:'msantos@student.edu', course:'BSCS', year:2 },
+  { id:3, fname:'Carl',  lname:'Aquino', studnum:'2024-00003', email:'caquino@student.edu', course:'BSED', year:1 },
+];
+let S_SEQ = 4;
+
+let SESSIONS = [
+  { id:1, student:'Jake Doe',    counselor:'Maria Santos', topic:'Academic Issue',  datetime:'May 10 | 9:00 AM',  status:'Finished'  },
+  { id:2, student:'Maria Santos',counselor:'Jose Reyes',   topic:'Personal Matter', datetime:'May 14 | 2:00 PM',  status:'Pending'   },
+  { id:3, student:'Carl Aquino', counselor:'Anna Cruz',    topic:'Career Guidance', datetime:'May 15 | 1:00 PM',  status:'Cancelled' },
+];
+let B_SEQ = 4;
+
+const SCHEDULE = [
+  { type:'Session', detail:'Jake Doe',       time:'9:00 – 10:00 AM' },
+  { type:'Event',   detail:'Faculty Meeting', time:'10:00 AM – 12:00 PM' },
+  { type:'Session', detail:'Maria Santos',   time:'1:00 – 2:00 PM' },
+];
+let HISTORY = [
+  { student:'Jake Doe',  topic:'Academic Issue',  date:'May 10, 2026', status:'Finished' },
+  { student:'Carl Aquino', topic:'Career Guidance', date:'May 8, 2026',  status:'Finished' },
+];
+
+let currentUser = null;
+let selectedCounselor = null;
+let counselorOnline = false;
+let sessionStatusFilter = '';
+let signinContext = 'staff'; // 'staff' | 'student'
+
+// ─────────────────────────────────
+// SCREEN ROUTING
+// ─────────────────────────────────
+function showScreen(name, ctx) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+
+  if (name === 'kiosk')    { renderCounselors(); updateClock(); }
+  if (name === 'admin')    { refreshStats(); renderAdmC(); renderAdmS(); renderAdmB(); renderRecent(); }
+  if (name === 'counselor'){ renderSched(); renderHist(); setTodayLabel(); }
+  if (name === 'signin')   {
+    signinContext = ctx || 'staff';
+    const isStaff = signinContext === 'staff';
+    document.getElementById('si-context-sub').textContent = isStaff ? 'Staff sign-in — counselors and administrators' : 'Sign in to your student account';
+    document.getElementById('si-title').textContent = isStaff ? 'Staff Portal' : 'Welcome back';
+    document.getElementById('si-signup-btn').style.display = isStaff ? 'none' : '';
+  }
+}
+
+// ─────────────────────────────────
+// TOAST
+// ─────────────────────────────────
+function toast(msg, type='info') {
+  const icons = { success:'✅', error:'❌', info:'ℹ️' };
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `<span>${icons[type]||'ℹ️'}</span><span>${msg}</span>`;
+  document.getElementById('toast-wrap').appendChild(el);
+  setTimeout(() => el.remove(), 3700);
+}
+
+// ─────────────────────────────────
+// MODAL
+// ─────────────────────────────────
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.overlay').forEach(m =>
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); })
+);
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.overlay.open').forEach(m => m.classList.remove('open'));
+    document.querySelectorAll('.notif-pop').forEach(n => n.remove());
+  }
+});
+
+// ─────────────────────────────────
+// VALIDATION HELPERS
+// ─────────────────────────────────
+const isEmail = e => /^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(e);
+function setErr(id, show) {
+  document.getElementById('e-' + id)?.classList.toggle('show', show);
+  const inp = document.getElementById(id);
+  if (inp) inp.classList.toggle('err', show);
+}
+function clearErrs(ids) { ids.forEach(id => setErr(id, false)); }
+function togglePw(id, btn) {
+  const i = document.getElementById(id);
+  i.type = i.type === 'password' ? 'text' : 'password';
+  btn.textContent = i.type === 'password' ? '👁' : '🙈';
+}
+
+// ─────────────────────────────────
+// KIOSK — COUNSELOR CARDS
+// ─────────────────────────────────
+function initials(c) { return (c.fname[0] + c.lname[0]).toUpperCase(); }
+
+function renderCounselors(q = '') {
+  const f = q.toLowerCase();
+  const grid = document.getElementById('counselors-grid');
+  const list = COUNSELORS.filter(c =>
+    !f || `${c.fname} ${c.lname} ${c.dept}`.toLowerCase().includes(f)
+  );
+  if (!list.length) {
+    grid.innerHTML = '<div class="no-results">No counselors found matching your search.</div>';
+    return;
+  }
+  grid.innerHTML = list.map(c => `
+    <div class="c-card ${c.available ? 'avail' : 'offline'}">
+      <div class="avatar ${c.available ? 'avail' : 'offline'}">${initials(c)}</div>
+      <div class="c-name">${c.fname} ${c.lname}</div>
+      <div class="c-dept">${c.dept}</div>
+      <div class="c-status">
+        <div class="dot ${c.available ? 'avail' : 'offline'}"></div>
+        <span style="color:${c.available ? 'var(--text)' : 'var(--muted)'}">${c.available ? 'Available Now' : 'Currently Offline'}</span>
+      </div>
+      <button class="book-btn ${c.available ? 'avail' : 'offline'}"
+        ${c.available ? `onclick="openBooking(${c.id})"` : 'disabled'}>
+        ${c.available ? 'Book a Session' : 'Unavailable'}
+      </button>
+    </div>
+  `).join('');
+}
+
+function filterCounselors() {
+  renderCounselors(document.getElementById('c-search').value);
+}
+
+// ─────────────────────────────────
+// BOOKING
+// ─────────────────────────────────
+function openBooking(cid) {
+  selectedCounselor = COUNSELORS.find(c => c.id === cid);
+  document.getElementById('bk-counselor-label').textContent =
+    `Counselor: ${selectedCounselor.fname} ${selectedCounselor.lname} — ${selectedCounselor.dept}`;
+  // Set min date to today
+  document.getElementById('bk-date').min = new Date().toISOString().split('T')[0];
+  // Pre-fill if logged in student
+  if (currentUser && currentUser.role === 'Student') {
+    const s = STUDENTS.find(st => st.email === currentUser.email);
+    if (s) {
+      document.getElementById('bk-name').value    = `${s.fname} ${s.lname}`;
+      document.getElementById('bk-email').value   = s.email;
+      document.getElementById('bk-dept').value    = s.course;
+    }
+  }
+  openModal('modal-book');
+}
+
+function submitBooking() {
+  const ids = ['bk-name','bk-dept','bk-email','bk-contact','bk-date','bk-time','bk-topic'];
+  clearErrs(ids);
+  const v = id => document.getElementById(id).value.trim();
+  let ok = true;
+  if (!v('bk-name'))                    { setErr('bk-name', true);    ok = false; }
+  if (!v('bk-dept'))                    { setErr('bk-dept', true);    ok = false; }
+  if (!isEmail(v('bk-email')))          { setErr('bk-email', true);   ok = false; }
+  if (!/^\d{11}$/.test(v('bk-contact'))){ setErr('bk-contact', true); ok = false; }
+  if (!v('bk-date'))                    { setErr('bk-date', true);    ok = false; }
+  if (!v('bk-time'))                    { setErr('bk-time', true);    ok = false; }
+  if (!v('bk-topic'))                   { setErr('bk-topic', true);   ok = false; }
+  if (!ok) return;
+
+  const dateStr = new Date(v('bk-date')).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+  SESSIONS.push({
+    id: B_SEQ++,
+    student:   v('bk-name'),
+    counselor: `${selectedCounselor.fname} ${selectedCounselor.lname}`,
+    topic:     v('bk-topic'),
+    datetime:  `${dateStr} | ${v('bk-time')}`,
+    status:    'Pending'
+  });
+
+  closeModal('modal-book');
+
+  // populate post-booking screen
+  document.getElementById('pb-counselor').textContent = `${selectedCounselor.fname} ${selectedCounselor.lname}`;
+  document.getElementById('pb-datetime').textContent  = `${dateStr} at ${v('bk-time')}`;
+
+  // clear form
+  ids.forEach(id => { document.getElementById(id).value = ''; });
+  document.getElementById('bk-desc').value = '';
+
+  // If already logged in as student, skip optional login prompt
+  if (currentUser && currentUser.role === 'Student') {
+    toast('Booking confirmed!', 'success');
+    showScreen('kiosk');
+  } else {
+    showScreen('postbook');
+  }
+}
+
+// ─────────────────────────────────
+// AUTH
+// ─────────────────────────────────
+function doSignIn() {
+  clearErrs(['si-email','si-pw']);
+  const email = document.getElementById('si-email').value.trim();
+  const pw    = document.getElementById('si-pw').value;
+  let ok = true;
+  if (!isEmail(email)) { setErr('si-email', true); ok = false; }
+  if (!pw)             { setErr('si-pw', true);    ok = false; }
+  if (!ok) return;
+
+  const user = USERS.find(u => u.email === email && u.password === pw);
+  if (!user) { toast('Incorrect email or password.', 'error'); return; }
+
+  currentUser = user;
+  if (user.role === 'Student') {
+    toast(`Welcome back, ${user.name.split(' ')[0]}!`, 'success');
+    showScreen('kiosk');
+  } else if (user.role === 'Counselor') {
+    document.getElementById('c-greeting').textContent = user.name;
+    showScreen('counselor');
+  } else {
+    showScreen('admin');
+  }
+}
+
+function doSignUp() {
+  const ids = ['su-fn','su-ln','su-co','su-sn','su-em','su-cn','su-pw','su-cp'];
+  clearErrs(ids);
+  const v  = id => document.getElementById(id).value.trim();
+  const vp = id => document.getElementById(id).value;
+  let ok = true;
+  if (!v('su-fn'))                      { setErr('su-fn', true); ok = false; }
+  if (!v('su-ln'))                      { setErr('su-ln', true); ok = false; }
+  if (!v('su-co'))                      { setErr('su-co', true); ok = false; }
+  if (!v('su-sn'))                      { setErr('su-sn', true); ok = false; }
+  if (!isEmail(v('su-em')))             { setErr('su-em', true); ok = false; }
+  if (!/^\d{11}$/.test(v('su-cn')))     { setErr('su-cn', true); ok = false; }
+  if (vp('su-pw').length < 8)           { setErr('su-pw', true); ok = false; }
+  if (vp('su-pw') !== vp('su-cp'))      { setErr('su-cp', true); ok = false; }
+  if (!ok) return;
+
+  USERS.push({ email: v('su-em'), password: vp('su-pw'), role: 'Student', name: `${v('su-fn')} ${v('su-ln')}` });
+  STUDENTS.push({ id: S_SEQ++, fname: v('su-fn'), lname: v('su-ln'), studnum: v('su-sn'), email: v('su-em'), course: v('su-co'), year: parseInt(document.getElementById('su-yr').value) });
+
+  toast('Account created! Please sign in.', 'success');
+  showScreen('signin', 'student');
+}
+
+function doSignOut() {
+  closeModal('modal-signout');
+  currentUser = null;
+  showScreen('kiosk');
+}
+
+// ─────────────────────────────────
+// COUNSELOR PORTAL
+// ─────────────────────────────────
+function cTab(name, btn) {
+  document.querySelectorAll('#screen-counselor .tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('#screen-counselor .tab-pane').forEach(p => p.classList.remove('active'));
+  document.getElementById('ctab-' + name).classList.add('active');
+  if (btn) btn.classList.add('active');
+  else {
+    const map = { schedule:0, session:1, history:2 };
+    document.querySelectorAll('#screen-counselor .tab-btn')[map[name] ?? 0]?.classList.add('active');
+  }
+}
+
+function setTodayLabel() {
+  document.getElementById('today-label').textContent =
+    'Today — ' + new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+}
+
+function toggleStatus(row) {
+  counselorOnline = !counselorOnline;
+  document.getElementById('status-sw').classList.toggle('on', counselorOnline);
+  const lbl = document.getElementById('status-lbl');
+  lbl.textContent = counselorOnline ? 'Available' : 'Offline';
+  lbl.classList.toggle('on', counselorOnline);
+  if (currentUser) {
+    const c = COUNSELORS.find(c => c.email === currentUser.email);
+    if (c) c.available = counselorOnline;
+  }
+  toast(`Status set to ${counselorOnline ? 'Available' : 'Offline'}.`, 'success');
+}
+
+function renderSched() {
+  document.getElementById('sched-tbody').innerHTML = SCHEDULE.map(item => `
+    <tr>
+      <td><span class="tag ${item.type === 'Session' ? 'tag-session' : 'tag-event'}">${item.type}</span></td>
+      <td>${item.detail}</td>
+      <td>${item.time}</td>
+      <td>${item.type === 'Session'
+        ? `<button class="btn btn-secondary" style="font-size:11px;padding:5px 12px" onclick="openActiveSess('${item.detail}')">Open</button>`
+        : '—'}</td>
+    </tr>
+  `).join('');
+}
+
+function openActiveSess(name) {
+  document.getElementById('active-student').textContent = name;
+  document.getElementById('sess-rec').value = '';
+  document.getElementById('sess-notes').value = '';
+  cTab('session', null);
+}
+
+function finishSession() {
+  const name  = document.getElementById('active-student').textContent;
+  const topic = document.getElementById('sess-topic').value;
+  HISTORY.unshift({ student: name, topic, date: new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}), status: 'Finished' });
+  toast(`Session with ${name} marked as finished.`, 'success');
+  cTab('schedule', null);
+}
+
+function renderHist() {
+  const tbody = document.getElementById('hist-tbody');
+  tbody.innerHTML = HISTORY.length
+    ? HISTORY.map(h => `<tr><td>${h.student}</td><td>${h.topic}</td><td>${h.date}</td><td><span class="tag tag-finished">${h.status}</span></td></tr>`).join('')
+    : '<tr><td colspan="4" style="text-align:center;padding:32px;color:var(--muted)">No history yet.</td></tr>';
+}
+
+function simulateIncoming() {
+  showNotif('Incoming Session', 'Session request from <strong>Jake Doe</strong>', false, () => openActiveSess('Jake Doe'));
+}
+function simulateCancel() {
+  showNotif('Session Cancelled', '<strong>Maria Santos</strong> cancelled their booking.', true, null);
+}
+
+function showNotif(title, msg, isCancel, cb) {
+  document.querySelectorAll('.notif-pop').forEach(n => n.remove());
+  const el = document.createElement('div');
+  el.className = 'notif-pop' + (isCancel ? ' cancel-pop' : '');
+  el.innerHTML = `
+    <div class="np-title">${title}</div>
+    <div class="np-msg">${msg}</div>
+    <div class="np-btns">
+      ${cb ? `<button class="btn btn-primary" style="font-size:13px;padding:9px 18px" onclick="this.closest('.notif-pop').remove();(${cb.toString()})()">Open</button>` : ''}
+      <button class="btn btn-secondary" style="font-size:13px;padding:9px 18px" onclick="this.closest('.notif-pop').remove()">Dismiss</button>
+    </div>`;
+  document.body.appendChild(el);
+  setTimeout(() => { if (el.parentNode) el.remove(); }, 9000);
+}
+
+function copyField(id) {
+  const v = document.getElementById(id)?.value;
+  if (v && navigator.clipboard) navigator.clipboard.writeText(v).then(() => toast('Copied to clipboard.', 'success'));
+  else toast('Nothing to copy.', 'info');
+}
+
+// ─────────────────────────────────
+// ADMIN PORTAL
+// ─────────────────────────────────
+function aSection(name, btn) {
+  document.querySelectorAll('.asec').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.sidebar .sb-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('asec-' + name).classList.add('active');
+  btn?.classList.add('active');
+}
+
+function refreshStats() {
+  document.getElementById('st-c').textContent = COUNSELORS.length;
+  document.getElementById('st-s').textContent = STUDENTS.length;
+  document.getElementById('st-b').textContent = SESSIONS.length;
+}
+
+const tagMap = { Finished:'tag-finished', Pending:'tag-pending', Cancelled:'tag-cancelled' };
+
+function renderAdmC() {
+  document.getElementById('adm-c-tbody').innerHTML = COUNSELORS.map(c => `
+    <tr data-s="${(c.fname+' '+c.lname+' '+c.email+' '+c.dept).toLowerCase()}">
+      <td style="font-weight:700">${c.fname} ${c.lname}</td>
+      <td style="color:var(--muted);font-size:12px">${c.email}</td>
+      <td>${c.dept}</td>
+      <td><span class="badge ${c.available ? 'badge-on' : 'badge-off'}">${c.available ? 'Available' : 'Offline'}</span></td>
+      <td>
+        <span class="al" onclick="toggleCAvail(${c.id})">${c.available ? 'Set Offline' : 'Set Available'}</span>
+        &nbsp;·&nbsp;
+        <span class="al-r" onclick="confirmDel('Remove ${c.fname} ${c.lname}?',()=>delC(${c.id}))">Remove</span>
+      </td>
+    </tr>`).join('') || '<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--muted)">No counselors found.</td></tr>';
+}
+
+function renderAdmS() {
+  document.getElementById('adm-s-tbody').innerHTML = STUDENTS.map(s => `
+    <tr data-s="${(s.fname+' '+s.lname+' '+s.studnum+' '+s.email+' '+s.course).toLowerCase()}">
+      <td style="font-weight:700">${s.fname} ${s.lname}</td>
+      <td style="color:var(--muted);font-size:12px">${s.studnum}</td>
+      <td>${s.course}</td>
+      <td style="color:var(--muted);font-size:12px">${s.email}</td>
+      <td>${s.year}</td>
+      <td><span class="al-r" onclick="confirmDel('Remove ${s.fname} ${s.lname}?',()=>delS(${s.id}))">Remove</span></td>
+    </tr>`).join('') || '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--muted)">No students found.</td></tr>';
+}
+
+function renderAdmB() {
+  const list = sessionStatusFilter ? SESSIONS.filter(s => s.status === sessionStatusFilter) : SESSIONS;
+  document.getElementById('adm-b-tbody').innerHTML = list.map(s => `
+    <tr data-s="${(s.student+' '+s.counselor+' '+s.topic+' '+s.status).toLowerCase()}">
+      <td style="color:var(--muted)">#${s.id}</td>
+      <td style="font-weight:700">${s.student}</td>
+      <td>${s.counselor}</td>
+      <td style="color:var(--muted)">${s.topic}</td>
+      <td style="font-size:12px">${s.datetime}</td>
+      <td><span class="tag ${tagMap[s.status]||''}">${s.status}</span></td>
+      <td>${s.status === 'Pending'
+        ? `<span class="al" onclick="setSessionStatus(${s.id},'Finished')">Finish</span> · <span class="al-r" onclick="setSessionStatus(${s.id},'Cancelled')">Cancel</span>`
+        : '—'}</td>
+    </tr>`).join('') || '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted)">No sessions found.</td></tr>';
+}
+
+function renderRecent() {
+  document.getElementById('recent-tbody').innerHTML = [...SESSIONS].reverse().slice(0,6).map(s => `
+    <tr>
+      <td style="color:var(--muted)">#${s.id}</td>
+      <td style="font-weight:700">${s.student}</td>
+      <td>${s.counselor}</td>
+      <td><span class="tag ${tagMap[s.status]||''}">${s.status}</span></td>
+      <td style="font-size:12px;color:var(--muted)">${s.datetime}</td>
+    </tr>`).join('') || '<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--muted)">No sessions yet.</td></tr>';
+}
+
+function setSessionStatus(id, status) {
+  const s = SESSIONS.find(s => s.id === id);
+  if (s) { s.status = status; renderAdmB(); renderRecent(); toast(`Session #${id} marked as ${status}.`, 'success'); }
+}
+function filterSessionStatus(v) { sessionStatusFilter = v; renderAdmB(); }
+function toggleCAvail(id) {
+  const c = COUNSELORS.find(c => c.id === id);
+  if (c) { c.available = !c.available; renderAdmC(); toast(`${c.fname}'s availability updated.`, 'success'); }
+}
+function confirmDel(msg, cb) {
+  document.getElementById('del-msg').textContent = msg;
+  document.getElementById('del-confirm-btn').onclick = () => { cb(); closeModal('modal-del'); };
+  openModal('modal-del');
+}
+function delC(id) { COUNSELORS = COUNSELORS.filter(c => c.id !== id); renderAdmC(); refreshStats(); toast('Counselor removed.', 'success'); }
+function delS(id) { STUDENTS  = STUDENTS.filter(s => s.id !== id);   renderAdmS(); refreshStats(); toast('Student removed.', 'success'); }
+
+function submitAddCounselor() {
+  clearErrs(['ac-fn','ac-ln','ac-em','ac-dp']);
+  const v = id => document.getElementById(id).value.trim();
+  let ok = true;
+  if (!v('ac-fn'))        { setErr('ac-fn', true); ok = false; }
+  if (!v('ac-ln'))        { setErr('ac-ln', true); ok = false; }
+  if (!isEmail(v('ac-em'))){ setErr('ac-em', true); ok = false; }
+  if (!v('ac-dp'))        { setErr('ac-dp', true); ok = false; }
+  if (!ok) return;
+  COUNSELORS.push({ id: C_SEQ++, fname: v('ac-fn'), lname: v('ac-ln'), email: v('ac-em'), dept: v('ac-dp'), available: true });
+  closeModal('modal-add-c');
+  ['ac-fn','ac-ln','ac-em','ac-dp'].forEach(id => document.getElementById(id).value = '');
+  renderAdmC(); refreshStats();
+  toast('Counselor added.', 'success');
+}
+
+function submitAddStudent() {
+  clearErrs(['as-fn','as-ln','as-sn','as-em','as-co']);
+  const v = id => document.getElementById(id).value.trim();
+  let ok = true;
+  if (!v('as-fn'))        { setErr('as-fn', true); ok = false; }
+  if (!v('as-ln'))        { setErr('as-ln', true); ok = false; }
+  if (!v('as-sn'))        { setErr('as-sn', true); ok = false; }
+  if (!isEmail(v('as-em'))){ setErr('as-em', true); ok = false; }
+  if (!v('as-co'))        { setErr('as-co', true); ok = false; }
+  if (!ok) return;
+  STUDENTS.push({ id: S_SEQ++, fname: v('as-fn'), lname: v('as-ln'), studnum: v('as-sn'), email: v('as-em'), course: v('as-co'), year: parseInt(document.getElementById('as-yr').value) });
+  closeModal('modal-add-s');
+  ['as-fn','as-ln','as-sn','as-em','as-co'].forEach(id => document.getElementById(id).value = '');
+  renderAdmS(); refreshStats();
+  toast('Student added.', 'success');
+}
+
+// ─────────────────────────────────
+// TABLE SEARCH
+// ─────────────────────────────────
+function filterTbl(tbodyId, q) {
+  const sq = q.toLowerCase();
+  document.getElementById(tbodyId).querySelectorAll('tr').forEach(row => {
+    row.style.display = !sq || (row.getAttribute('data-s') || '').includes(sq) ? '' : 'none';
+  });
+}
+
+// ─────────────────────────────────
+// CLOCK
+// ─────────────────────────────────
+function updateClock() {
+  const el = document.getElementById('kiosk-clock');
+  if (el) el.textContent = new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true});
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ─────────────────────────────────
+// INIT
+// ─────────────────────────────────
+renderCounselors();
+setTodayLabel();
+</script>
+</body>
+</html>
