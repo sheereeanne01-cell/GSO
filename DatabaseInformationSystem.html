@@ -4,325 +4,284 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CounseLink — Student Counseling Kiosk</title>
-<link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@300;400;500;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg: #0f172a;
-  --card: #1e293b;
-  --card-hover: #263248;
-  --accent: #facc15;
-  --accent-dark: #eab308;
-  --accent-glow: rgba(250,204,21,0.14);
-  --text: #f8fafc;
-  --muted: #94a3b8;
-  --border: #334155;
-  --input-bg: #0b1120;
-  --red: #ef4444;
-  --green: #22c55e;
-  --blue: #3b82f6;
-  --shadow: 0 4px 24px rgba(0,0,0,0.45);
+:root{
+  --bg:#0f172a;--card:#1e293b;--card2:#263248;--accent:#facc15;--accent-d:#eab308;
+  --glow:rgba(250,204,21,.13);--text:#f1f5f9;--muted:#8899b0;--border:#2d3f55;
+  --inp:#0b1120;--red:#ef4444;--green:#22c55e;--blue:#3b82f6;--shad:0 4px 20px rgba(0,0,0,.45);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html,body{
-  height:100%;
-  font-family:'Roboto Condensed',sans-serif;background:var(--bg);color:var(--text);overflow:hidden}
+html,body{height:100%;font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overflow:hidden;font-size:14px;line-height:1.5}
 
-/* ── SCREENS ── */
+/* SCREENS */
 .screen{display:none;width:100%;height:100vh;overflow:hidden;flex-direction:column}
 .screen.active{display:flex}
 
-/* ── TOAST ── */
-#toast-wrap{position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:10px;pointer-events:none}
-.toast{background:var(--card);border:1px solid var(--border);color:var(--text);padding:13px 18px;border-radius:12px;font-size:13px;font-weight:500;box-shadow:var(--shadow);display:flex;align-items:center;gap:10px;max-width:310px;animation:toastIn .3s ease,toastOut .4s ease 3.2s forwards;pointer-events:auto}
+/* TOAST */
+#toast-wrap{position:fixed;top:16px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{background:var(--card);border:1px solid var(--border);color:var(--text);padding:11px 16px;border-radius:10px;font-size:13px;font-weight:500;box-shadow:var(--shad);display:flex;align-items:center;gap:8px;max-width:300px;animation:tIn .3s ease,tOut .4s 3.2s ease forwards;pointer-events:auto}
 .toast.success{border-color:var(--green)}.toast.error{border-color:var(--red)}
-@keyframes toastIn{from{transform:translateX(120%);opacity:0}to{transform:translateX(0);opacity:1}}
-@keyframes toastOut{to{transform:translateX(120%);opacity:0}}
+@keyframes tIn{from{transform:translateX(110%);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes tOut{to{transform:translateX(110%);opacity:0}}
 
-/* ── MODAL ── */
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(5px);z-index:1000;align-items:center;justify-content:center}
-.overlay.open{display:flex;animation:fadeIn .2s ease}
-.mbox{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:40px 48px;max-width:500px;width:92%;box-shadow:var(--shadow);animation:scaleIn .25s ease;max-height:92vh;overflow-y:auto}
+/* OVERLAY / MODAL */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:1000;align-items:center;justify-content:center}
+.overlay.open{display:flex;animation:fadeIn .18s ease}
+.mbox{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:32px 36px;max-width:490px;width:93%;box-shadow:var(--shad);animation:scIn .22s ease;max-height:93vh;overflow-y:auto}
 .mbox::-webkit-scrollbar{width:4px}.mbox::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-@keyframes scaleIn{from{transform:scale(.93);opacity:0}to{transform:scale(1);opacity:1}}
-.mtitle{font-family:'Syne',sans-serif;font-size:21px;font-weight:800;color:var(--accent);margin-bottom:8px}
-.mdesc{color:var(--muted);font-size:13px;line-height:1.65;margin-bottom:26px}
-.mactions{display:flex;gap:10px;justify-content:flex-end;margin-top:24px}
+@keyframes scIn{from{transform:scale(.94);opacity:0}to{transform:scale(1);opacity:1}}
+.mtitle{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--accent);margin-bottom:6px}
+.mdesc{color:var(--muted);font-size:13px;line-height:1.6;margin-bottom:22px}
+.mactions{display:flex;gap:8px;justify-content:flex-end;margin-top:20px}
 
-/* ── BUTTONS ── */
-.btn{padding:10px 22px;border-radius:10px;font-family:'Roboto Condensed',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;border:none;outline:none}
-.btn-primary{background:var(--accent);color:var(--bg)}.btn-primary:hover{background:var(--accent-dark);transform:translateY(-1px)}
-.btn-secondary{background:rgba(255,255,255,.05);color:var(--text);border:1px solid rgba(255,255,255,.12)}.btn-secondary:hover{background:rgba(255,255,255,.1)}
-.btn-ghost{background:transparent;color:var(--muted);border:1px solid transparent}.btn-ghost:hover{color:var(--text)}
+/* BUTTONS */
+.btn{padding:8px 18px;border-radius:8px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .18s;border:none;outline:none;letter-spacing:.01em}
+.btn-primary{background:var(--accent);color:#0f172a}.btn-primary:hover{background:var(--accent-d);transform:translateY(-1px)}
+.btn-secondary{background:rgba(255,255,255,.05);color:var(--text);border:1px solid rgba(255,255,255,.1)}.btn-secondary:hover{background:rgba(255,255,255,.09)}
 .btn-danger{background:var(--red);color:#fff}.btn-danger:hover{background:#dc2626}
-.btn-full{width:100%;padding:13px;font-size:15px}
+.btn-full{width:100%;padding:11px;font-size:14px}
 
-/* ── FORM ── */
-.fg{display:flex;flex-direction:column;gap:6px}
-.flabel{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
-.finput,.fselect{background:var(--input-bg);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:11px 15px;font-family:'Roboto Condensed',sans-serif;font-size:14px;transition:border-color .2s,box-shadow .2s;outline:none;width:100%}
-.finput:focus,.fselect:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
+/* FORM */
+.fg{display:flex;flex-direction:column;gap:5px}
+.flabel{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.05em;text-transform:uppercase}
+.finput,.fselect{background:var(--inp);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px 12px;font-family:'Inter',sans-serif;font-size:13px;transition:border-color .18s,box-shadow .18s;outline:none;width:100%}
+.finput:focus,.fselect:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--glow)}
 .finput.err{border-color:var(--red)!important}.fselect option{background:var(--card)}
 .finput::placeholder{color:#2d3f56}
-.ferr{color:var(--red);font-size:11px;font-weight:600;display:none;margin-top:2px}.ferr.show{display:block}
-.pw-wrap{position:relative}.pw-wrap .finput{padding-right:50px}
-.eye-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:3px 6px;transition:color .2s}.eye-btn:hover{color:var(--text)}
-.frow{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.ftextarea{background:var(--input-bg);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:12px 15px;font-family:'Roboto Condensed',sans-serif;font-size:13px;resize:vertical;min-height:90px;outline:none;width:100%;transition:border-color .2s}.ftextarea:focus{border-color:var(--accent)}
-.divider{text-align:center;color:var(--muted);font-size:12px;position:relative;margin:4px 0}
-.divider::before,.divider::after{content:'';position:absolute;top:50%;width:44%;height:1px;background:var(--border)}
-.divider::before{left:0}.divider::after{right:0}
+.ferr{color:var(--red);font-size:11px;font-weight:500;display:none;margin-top:2px}.ferr.show{display:block}
+.pw-w{position:relative}.pw-w .finput{padding-right:44px}
+.eye-btn{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:2px 5px;transition:color .18s}.eye-btn:hover{color:var(--text)}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.ftxt{background:var(--inp);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:10px 12px;font-family:'Inter',sans-serif;font-size:13px;resize:vertical;min-height:85px;outline:none;width:100%;transition:border-color .18s;line-height:1.5}.ftxt:focus{border-color:var(--accent)}
+.hdivider{text-align:center;color:var(--muted);font-size:11px;position:relative;margin:4px 0}
+.hdivider::before,.hdivider::after{content:'';position:absolute;top:50%;width:44%;height:1px;background:var(--border)}
+.hdivider::before{left:0}.hdivider::after{right:0}
 
-/* ════════════════════════════════
-   KIOSK SCREEN  (public landing)
-════════════════════════════════ */
-#screen-kiosk{background:radial-gradient(ellipse at 50% -10%,rgba(250,204,21,.08) 0%,transparent 55%),var(--bg)}
+/* ═══ KIOSK ═══ */
+#screen-kiosk{background:radial-gradient(ellipse at 50% -5%,rgba(250,204,21,.07) 0%,transparent 55%),var(--bg)}
+.k-nav{background:rgba(15,23,42,.92);backdrop-filter:blur(14px);border-bottom:1px solid rgba(255,255,255,.07);padding:0 44px;display:flex;align-items:center;justify-content:space-between;height:54px;flex-shrink:0;position:sticky;top:0;z-index:50}
+.k-logo{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;color:var(--accent);letter-spacing:-.2px}
+.k-logo span{color:var(--text)}
+.k-clock{color:var(--muted);font-size:13px;font-weight:500;font-variant-numeric:tabular-nums}
+.staff-btn{font-size:11px;color:var(--border);cursor:pointer;background:none;border:none;transition:color .18s;padding:3px 8px;border-radius:5px}.staff-btn:hover{color:var(--muted)}
 
-.kiosk-nav{background:rgba(15,23,42,.9);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.07);padding:16px 48px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:sticky;top:0;z-index:50}
-.kiosk-nav-logo{font-family:'Roboto Condensed',sans-serif;font-size:19px;font-weight:800;color:var(--accent);letter-spacing:-.3px}
-.kiosk-nav-logo span{color:var(--text)}
-.kiosk-clock{color:var(--muted);font-size:14px;font-weight:500;font-variant-numeric:tabular-nums}
-.staff-link{font-size:12px;color:var(--border);cursor:pointer;background:none;border:none;transition:color .2s;padding:4px 8px;border-radius:6px}.staff-link:hover{color:var(--muted)}
+.k-body{flex:1;overflow-y:auto;padding:40px 52px 52px}
+.k-body::-webkit-scrollbar{width:5px}.k-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
 
-.kiosk-body{flex:1;overflow-y:auto;padding:52px 60px 60px}
-.kiosk-body::-webkit-scrollbar{width:6px}.kiosk-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.k-hero{text-align:center;margin-bottom:40px}
+.k-hero-title{font-family:'Syne',sans-serif;font-size:34px;font-weight:800;line-height:1.1;letter-spacing:-.4px}
+.k-hero-title em{color:var(--accent);font-style:normal}
+.k-hero-sub{color:var(--muted);font-size:14px;margin-top:8px;max-width:440px;margin-left:auto;margin-right:auto;line-height:1.55}
 
-.kiosk-hero{text-align:center;margin-bottom:52px}
-.kiosk-hero-title{font-family:'Roboto Condensed',sans-serif;font-size:40px;font-weight:800;line-height:1.1;letter-spacing:-.5px}
-.kiosk-hero-title em{color:var(--accent);font-style:normal}
-.kiosk-hero-sub{color:var(--muted);font-size:15px;margin-top:12px;max-width:480px;margin-left:auto;margin-right:auto;line-height:1.6}
+.srch-bar{display:flex;align-items:center;gap:9px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:9px 16px;max-width:400px;margin:0 auto 38px;transition:border-color .18s}
+.srch-bar:focus-within{border-color:var(--accent)}
+.srch-bar input{background:transparent;border:none;outline:none;color:var(--text);font-family:'Inter',sans-serif;font-size:13px;width:100%}
+.srch-bar input::placeholder{color:var(--border)}
 
-.search-bar{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:11px 20px;max-width:420px;margin:0 auto 48px;transition:border-color .2s}
-.search-bar:focus-within{border-color:var(--accent)}
-.search-bar input{background:transparent;border:none;outline:none;color:var(--text);font-family:'Roboto Condensed',sans-serif;font-size:14px;width:100%}
-.search-bar input::placeholder{color:var(--border)}
+.c-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:16px}
 
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(228px,1fr));gap:22px}
+.c-card{background:var(--card);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:26px 18px 20px;display:flex;flex-direction:column;align-items:center;transition:all .22s;box-shadow:0 2px 10px rgba(0,0,0,.28)}
+.c-card.avail:hover{background:var(--card2);transform:translateY(-2px);box-shadow:0 6px 22px rgba(0,0,0,.4)}
+.c-card.offline{opacity:.6}
 
-.c-card{background:var(--card);border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:34px 22px 26px;display:flex;flex-direction:column;align-items:center;transition:all .25s;box-shadow:0 2px 12px rgba(0,0,0,.3);cursor:default}
-.c-card.avail:hover{background:var(--card-hover);transform:translateY(-3px);box-shadow:0 8px 30px rgba(0,0,0,.4)}
-.c-card.offline{opacity:.65}
+.avatar{width:58px;height:58px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:18px;font-weight:800;margin-bottom:12px;flex-shrink:0}
+.avatar.avail{background:rgba(250,204,21,.11);color:var(--accent);border:2px solid rgba(250,204,21,.3)}
+.avatar.offline{background:rgba(148,163,184,.09);color:var(--muted);border:2px solid rgba(148,163,184,.16)}
 
-.avatar{width:70px;height:70px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Roboto Condensed',sans-serif;font-size:21px;font-weight:800;margin-bottom:16px;flex-shrink:0}
-.avatar.avail{background:rgba(250,204,21,.12);color:var(--accent);border:2px solid rgba(250,204,21,.35)}
-.avatar.offline{background:rgba(148,163,184,.1);color:var(--muted);border:2px solid rgba(148,163,184,.18)}
+.c-name{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;text-align:center;margin-bottom:2px;line-height:1.2}
+.c-dept{font-size:11px;color:var(--muted);text-align:center;margin-bottom:10px;text-transform:uppercase;letter-spacing:.05em}
+.c-status{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:600;margin-bottom:16px}
+.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.dot.avail{background:var(--green);box-shadow:0 0 6px var(--green)}.dot.offline{background:var(--muted)}
 
-.c-name{font-family:'Roboto Condensed',sans-serif;font-size:16px;font-weight:800;text-align:center;margin-bottom:3px}
-.c-dept{font-size:11px;color:var(--muted);text-align:center;margin-bottom:12px;text-transform:uppercase;letter-spacing:.05em}
-.c-status{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;margin-bottom:20px}
-.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.dot.avail{background:var(--green);box-shadow:0 0 7px var(--green)}.dot.offline{background:var(--muted)}
+.book-btn{width:100%;padding:8px;border-radius:8px;font-family:'Inter',sans-serif;font-size:12px;font-weight:700;border:none;cursor:pointer;transition:all .18s;margin-top:auto;letter-spacing:.02em}
+.book-btn.avail{background:var(--accent);color:#0f172a}.book-btn.avail:hover{background:var(--accent-d)}
+.book-btn.offline{background:rgba(255,255,255,.04);color:var(--muted);cursor:not-allowed;border:1px solid rgba(255,255,255,.07)}
 
-.book-btn{width:100%;padding:10px;border-radius:10px;font-family:'Roboto Condensed',sans-serif;font-size:13px;font-weight:700;border:none;cursor:pointer;transition:all .2s;margin-top:auto}
-.book-btn.avail{background:var(--accent);color:var(--bg)}.book-btn.avail:hover{background:var(--accent-dark)}
-.book-btn.offline{background:rgba(255,255,255,.05);color:var(--muted);cursor:not-allowed;border:1px solid rgba(255,255,255,.08)}
+.no-results{text-align:center;padding:50px 20px;color:var(--muted);font-size:13px;grid-column:1/-1}
 
-.no-results{text-align:center;padding:60px 20px;color:var(--muted);font-size:14px;grid-column:1/-1}
+/* ═══ BOOKING MODAL ═══ */
+#modal-book .mbox{max-width:560px}
+.bk-title{font-family:'Syne',sans-serif;font-size:19px;font-weight:800;margin-bottom:3px}
+.bk-sub{color:var(--accent);font-size:13px;font-weight:600;margin-bottom:20px}
+.bk-form{display:flex;flex-direction:column;gap:12px}
 
-/* ════════════════════════════════
-   BOOKING MODAL
-════════════════════════════════ */
-#modal-book .mbox{max-width:580px}
-.book-header{margin-bottom:24px}
-.book-title{font-family:'Roboto Condensed',sans-serif;font-size:22px;font-weight:800;margin-bottom:4px}
-.book-counselor{color:var(--accent);font-size:14px;font-weight:600}
-.book-form{display:flex;flex-direction:column;gap:14px}
-
-/* ════════════════════════════════
-   POST-BOOKING: OPTIONAL LOGIN
-════════════════════════════════ */
-#screen-postbook{align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 50%,rgba(250,204,21,.06) 0%,transparent 60%),var(--bg)}
-.postbook-card{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:52px 56px;max-width:460px;width:92%;box-shadow:var(--shadow);text-align:center;animation:cardUp .5s ease}
-@keyframes cardUp{from{transform:translateY(18px);opacity:0}to{transform:translateY(0);opacity:1}}
-.pb-check{width:68px;height:68px;border-radius:50%;background:rgba(34,197,94,.12);border:2px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 22px}
-.pb-title{font-family:'Roboto Condensed',sans-serif;font-size:24px;font-weight:800;margin-bottom:10px}
-.pb-detail{color:var(--muted);font-size:13px;line-height:1.7;margin-bottom:28px}
+/* ═══ POST-BOOKING ═══ */
+#screen-postbook{align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 50%,rgba(250,204,21,.05) 0%,transparent 60%),var(--bg)}
+.pb-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:44px 48px;max-width:420px;width:92%;box-shadow:var(--shad);text-align:center;animation:cardUp .45s ease}
+@keyframes cardUp{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
+.pb-check{width:60px;height:60px;border-radius:50%;background:rgba(34,197,94,.1);border:2px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 18px}
+.pb-title{font-family:'Syne',sans-serif;font-size:21px;font-weight:800;margin-bottom:8px}
+.pb-detail{color:var(--muted);font-size:13px;line-height:1.65;margin-bottom:22px}
 .pb-detail strong{color:var(--text)}
-.pb-divider{border:none;border-top:1px solid var(--border);margin:24px 0}
-.pb-prompt-title{font-family:'Roboto Condensed',sans-serif;font-size:15px;font-weight:700;margin-bottom:6px}
-.pb-prompt-sub{color:var(--muted);font-size:12px;margin-bottom:18px;line-height:1.5}
-.pb-actions{display:flex;flex-direction:column;gap:10px}
-.pb-skip{color:var(--muted);font-size:12px;margin-top:6px;cursor:pointer;background:none;border:none;transition:color .2s;padding:4px}.pb-skip:hover{color:var(--text)}
+.pb-hr{border:none;border-top:1px solid var(--border);margin:20px 0}
+.pb-ptitle{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:5px}
+.pb-psub{color:var(--muted);font-size:12px;margin-bottom:16px;line-height:1.5}
+.pb-acts{display:flex;flex-direction:column;gap:8px}
+.pb-skip{color:var(--muted);font-size:12px;margin-top:5px;cursor:pointer;background:none;border:none;transition:color .18s;padding:3px}.pb-skip:hover{color:var(--text)}
 
-/* ════════════════════════════════
-   SIGN IN (staff + student)
-════════════════════════════════ */
-#screen-signin{align-items:center;justify-content:center;background:radial-gradient(ellipse at 60% 0%,rgba(250,204,21,.07) 0%,transparent 55%),var(--bg)}
-.signin-card{background:var(--card);border-radius:24px;border:1px solid var(--border);padding:50px 54px;width:430px;max-width:94vw;box-shadow:var(--shadow);animation:cardUp .5s ease}
-.si-logo{font-family:'Roboto Condensed',sans-serif;font-size:26px;font-weight:800;color:var(--accent);margin-bottom:4px}
+/* ═══ SIGN IN ═══ */
+#screen-signin{align-items:center;justify-content:center;background:radial-gradient(ellipse at 60% 0%,rgba(250,204,21,.06) 0%,transparent 55%),var(--bg)}
+.si-card{background:var(--card);border-radius:18px;border:1px solid var(--border);padding:40px 44px;width:400px;max-width:94vw;box-shadow:var(--shad);animation:cardUp .45s ease}
+.si-logo{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--accent);margin-bottom:3px}
 .si-logo span{color:var(--text)}
-.si-sub{color:var(--muted);font-size:12px;margin-bottom:32px}
-.si-title{font-family:'Roboto Condensed',sans-serif;font-size:18px;font-weight:700;margin-bottom:24px}
-.si-form{display:flex;flex-direction:column;gap:16px}
-.si-back{font-size:12px;color:var(--muted);background:none;border:none;cursor:pointer;margin-top:14px;transition:color .2s;display:block;text-align:center}.si-back:hover{color:var(--text)}
+.si-ctx{color:var(--muted);font-size:11px;margin-bottom:26px;line-height:1.4}
+.si-heading{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:20px}
+.si-form{display:flex;flex-direction:column;gap:14px}
+.si-back{font-size:12px;color:var(--muted);background:none;border:none;cursor:pointer;margin-top:12px;transition:color .18s;display:block;text-align:center}.si-back:hover{color:var(--text)}
 
-/* ════════════════════════════════
-   SIGN UP
-════════════════════════════════ */
-#screen-signup{align-items:center;justify-content:center;overflow-y:auto;background:radial-gradient(ellipse at 30% 100%,rgba(250,204,21,.05) 0%,transparent 55%),var(--bg)}
-.signup-card{background:var(--card);border-radius:24px;border:1px solid var(--border);padding:46px 50px;width:800px;max-width:95vw;box-shadow:var(--shadow);margin:36px auto;animation:cardUp .4s ease}
-.su-title{font-family:'Roboto Condensed',sans-serif;font-size:24px;font-weight:800;color:var(--accent);margin-bottom:4px}
-.su-desc{color:var(--muted);font-size:12px;margin-bottom:32px}
-.su-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 28px}
-.su-section{font-family:'Roboto Condensed',sans-serif;font-size:12px;font-weight:700;color:var(--text);letter-spacing:.09em;text-transform:uppercase;grid-column:1/-1;padding-bottom:6px;border-bottom:1px solid var(--border);margin-top:6px}
-.su-actions{display:flex;justify-content:space-between;align-items:center;margin-top:28px}
+/* ═══ SIGN UP ═══ */
+#screen-signup{align-items:center;justify-content:center;overflow-y:auto;background:var(--bg)}
+.su-card{background:var(--card);border-radius:18px;border:1px solid var(--border);padding:38px 44px;width:760px;max-width:95vw;box-shadow:var(--shad);margin:32px auto;animation:cardUp .4s ease}
+.su-title{font-family:'Syne',sans-serif;font-size:21px;font-weight:800;color:var(--accent);margin-bottom:3px}
+.su-desc{color:var(--muted);font-size:12px;margin-bottom:26px}
+.su-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 24px}
+.su-sec{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;grid-column:1/-1;padding-bottom:5px;border-bottom:1px solid var(--border);margin-top:4px}
+.su-acts{display:flex;justify-content:space-between;align-items:center;margin-top:24px}
 
-/* ════════════════════════════════
-   COUNSELOR PORTAL
-════════════════════════════════ */
+/* ═══ SHARED NAV ═══ */
+.top-nav{background:rgba(15,23,42,.96);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.07);padding:0 36px;display:flex;align-items:center;justify-content:space-between;height:52px;flex-shrink:0}
+.tn-logo{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:var(--accent)}
+.tn-logo span{color:var(--text)}
+.tn-user{color:var(--muted);font-size:13px;font-weight:500;display:flex;align-items:center;gap:12px}
+
+/* ═══ NOTIFICATION BELL ═══ */
+.notif-bell-wrap{position:relative;cursor:pointer}
+.notif-bell{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:6px 10px;font-size:15px;cursor:pointer;transition:background .18s;display:flex;align-items:center;gap:6px}
+.notif-bell:hover{background:rgba(255,255,255,.1)}
+.notif-badge{position:absolute;top:-5px;right:-5px;background:var(--red);color:#fff;border-radius:50%;font-size:10px;font-weight:700;width:17px;height:17px;display:flex;align-items:center;justify-content:center;border:2px solid var(--bg);display:none}
+.notif-badge.show{display:flex}
+
+/* NOTIFICATION DROPDOWN */
+.notif-dropdown{position:absolute;top:calc(100% + 8px);right:0;width:320px;background:var(--card);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shad);z-index:500;overflow:hidden;display:none;animation:scIn .18s ease}
+.notif-dropdown.open{display:block}
+.nd-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.nd-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:800}
+.nd-clear{font-size:11px;color:var(--muted);cursor:pointer;background:none;border:none;transition:color .18s}.nd-clear:hover{color:var(--text)}
+.nd-list{max-height:320px;overflow-y:auto}
+.nd-list::-webkit-scrollbar{width:3px}.nd-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.nd-empty{padding:28px 16px;text-align:center;color:var(--muted);font-size:12px}
+.nd-item{padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.05);cursor:pointer;transition:background .15s;display:flex;gap:10px;align-items:flex-start}
+.nd-item:hover{background:rgba(255,255,255,.03)}
+.nd-item.unread{background:rgba(250,204,21,.04);border-left:3px solid var(--accent)}
+.nd-item.unread:hover{background:rgba(250,204,21,.06)}
+.nd-icon{width:32px;height:32px;border-radius:50%;background:rgba(250,204,21,.1);border:1px solid rgba(250,204,21,.25);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;margin-top:1px}
+.nd-icon.cancel-icon{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.25)}
+.nd-body{flex:1;min-width:0}
+.nd-msg{font-size:12px;font-weight:500;line-height:1.45;color:var(--text)}
+.nd-msg strong{color:var(--accent)}
+.nd-msg.cancel-msg strong{color:var(--red)}
+.nd-time{font-size:10px;color:var(--muted);margin-top:3px}
+.nd-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:5px}
+.nd-dot.hidden{visibility:hidden}
+
+/* ═══ COUNSELOR PORTAL ═══ */
 #screen-counselor{overflow:hidden}
-.portal-wrap{display:flex;flex:1;overflow:hidden}
-.sidebar{width:230px;background:var(--card);border-right:1px solid var(--border);padding:24px 14px;display:flex;flex-direction:column;gap:3px;flex-shrink:0}
-.sb-logo{font-family:'Roboto Condensed',sans-serif;font-size:15px;font-weight:800;color:var(--accent);padding:6px 12px;margin-bottom:18px}
-.sb-item{padding:10px 13px;border-radius:10px;cursor:pointer;transition:all .2s;font-size:13px;font-weight:600;color:var(--muted);display:flex;align-items:center;gap:9px;background:none;border:none;width:100%;text-align:left}
-.sb-item:hover{background:rgba(255,255,255,.05);color:var(--text)}.sb-item.active{background:var(--accent-glow);color:var(--accent)}
-.sb-bottom{margin-top:auto}
-
-.portal-main{flex:1;overflow-y:auto;padding:34px 38px;background:var(--bg)}
-.portal-main::-webkit-scrollbar{width:6px}.portal-main::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
-.ph-title{font-family:'Roboto Condensed',sans-serif;font-size:22px;font-weight:800;margin-bottom:4px}
-.ph-sub{color:var(--muted);font-size:13px;margin-bottom:24px}
-
-.tbl-wrap{background:var(--card);border-radius:14px;border:1px solid var(--border);overflow:hidden;margin-bottom:18px}
-table{width:100%;border-collapse:collapse}
-thead th{background:var(--bg);color:var(--muted);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:13px 18px;text-align:left}
-tbody tr{border-top:1px solid var(--border);transition:background .15s}
-tbody tr:hover{background:rgba(255,255,255,.025)}
-tbody td{padding:13px 18px;font-size:13px}
-
-.tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
-.tag-session{background:rgba(250,204,21,.12);color:var(--accent)}
-.tag-event{background:rgba(59,130,246,.12);color:var(--blue)}
-.tag-finished{background:rgba(34,197,94,.12);color:var(--green)}
-.tag-pending{background:rgba(250,204,21,.12);color:var(--accent)}
-.tag-cancelled{background:rgba(239,68,68,.12);color:var(--red)}
-
-.toggle-row{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px 16px;cursor:pointer;transition:border-color .2s;width:fit-content}.toggle-row:hover{border-color:var(--accent)}
-.sw{width:38px;height:21px;border-radius:11px;background:var(--border);position:relative;transition:background .25s;flex-shrink:0}
-.sw.on{background:var(--green)}.sw::after{content:'';position:absolute;width:15px;height:15px;background:#fff;border-radius:50%;top:3px;left:3px;transition:left .25s}.sw.on::after{left:20px}
-.sw-label{font-size:13px;font-weight:600;color:var(--muted)}.sw-label.on{color:var(--green)}
-
-.session-card{background:var(--card);border-radius:18px;border:1px solid var(--border);padding:30px 34px;box-shadow:var(--shadow)}
-.session-student{font-family:'Roboto Condensed',sans-serif;font-size:20px;font-weight:800;color:var(--accent);margin-bottom:22px}
-.session-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
-.sess-actions{display:flex;justify-content:space-between;align-items:center;margin-top:22px}
-
-/* tabs */
-.tab-bar{display:flex;gap:2px;background:var(--card);border-bottom:1px solid var(--border);padding:0 38px;flex-shrink:0}
-.tab-btn{padding:13px 18px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;background:none;border:none;border-bottom:2px solid transparent;transition:all .2s;margin-bottom:-1px}
+.tabs{display:flex;gap:0;background:var(--card);border-bottom:1px solid var(--border);padding:0 36px;flex-shrink:0}
+.tab-btn{padding:11px 16px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;background:none;border:none;border-bottom:2px solid transparent;transition:all .18s;margin-bottom:-1px;letter-spacing:.01em}
 .tab-btn:hover{color:var(--text)}.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
 .tab-pane{display:none;flex:1;overflow:hidden;flex-direction:column}.tab-pane.active{display:flex}
 
-/* Notif popup */
-.notif-pop{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:var(--card);border:2px solid var(--accent);border-radius:16px;padding:22px 30px;z-index:9999;box-shadow:var(--shadow),0 0 40px rgba(250,204,21,.18);text-align:center;min-width:290px;animation:dropBounce .4s cubic-bezier(.34,1.56,.64,1)}
-.notif-pop.cancel-pop{border-color:var(--red);box-shadow:var(--shadow),0 0 40px rgba(239,68,68,.18)}
-@keyframes dropBounce{from{transform:translateX(-50%) translateY(-60px);opacity:0}to{transform:translateX(-50%) translateY(0);opacity:1}}
-.np-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;margin-bottom:5px}
-.np-msg{color:var(--muted);font-size:12px;margin-bottom:18px;line-height:1.5}
-.np-btns{display:flex;gap:8px;justify-content:center}
+.pm{flex:1;overflow-y:auto;padding:28px 34px;background:var(--bg)}
+.pm::-webkit-scrollbar{width:5px}.pm::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.ph{font-family:'Syne',sans-serif;font-size:19px;font-weight:800;margin-bottom:3px}
+.ps{color:var(--muted);font-size:12px;margin-bottom:20px}
 
-/* ════════════════════════════════
-   ADMIN PORTAL
-════════════════════════════════ */
+.tbl-w{background:var(--card);border-radius:12px;border:1px solid var(--border);overflow:hidden;margin-bottom:16px}
+table{width:100%;border-collapse:collapse}
+thead th{background:rgba(15,23,42,.8);color:var(--muted);font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:10px 16px;text-align:left}
+tbody tr{border-top:1px solid rgba(255,255,255,.04);transition:background .13s}
+tbody tr:hover{background:rgba(255,255,255,.02)}
+tbody td{padding:10px 16px;font-size:13px}
+
+.tag{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600}
+.tag-session{background:rgba(250,204,21,.1);color:var(--accent)}
+.tag-event{background:rgba(59,130,246,.1);color:var(--blue)}
+.tag-finished{background:rgba(34,197,94,.1);color:var(--green)}
+.tag-pending{background:rgba(250,204,21,.1);color:var(--accent)}
+.tag-cancelled{background:rgba(239,68,68,.1);color:var(--red)}
+
+.sw-row{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:8px 14px;cursor:pointer;transition:border-color .18s;width:fit-content}.sw-row:hover{border-color:var(--accent)}
+.sw{width:34px;height:19px;border-radius:10px;background:var(--border);position:relative;transition:background .22s;flex-shrink:0}
+.sw.on{background:var(--green)}.sw::after{content:'';position:absolute;width:13px;height:13px;background:#fff;border-radius:50%;top:3px;left:3px;transition:left .22s}.sw.on::after{left:18px}
+.sw-lbl{font-size:12px;font-weight:600;color:var(--muted)}.sw-lbl.on{color:var(--green)}
+
+.sess-card{background:var(--card);border-radius:14px;border:1px solid var(--border);padding:24px 28px;box-shadow:var(--shad)}
+.sess-name{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--accent);margin-bottom:18px}
+.sess-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.sess-acts{display:flex;justify-content:space-between;align-items:center;margin-top:18px}
+
+/* ═══ ADMIN ═══ */
 #screen-admin{overflow:hidden}
-.admin-wrap{display:flex;flex:1;overflow:hidden}
-.admin-main{flex:1;overflow-y:auto;padding:34px 38px;background:var(--bg)}
-.admin-main::-webkit-scrollbar{width:6px}.admin-main::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.adm-wrap{display:flex;flex:1;overflow:hidden}
+.sidebar{width:210px;background:var(--card);border-right:1px solid var(--border);padding:18px 12px;display:flex;flex-direction:column;gap:2px;flex-shrink:0}
+.sb-logo{font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:var(--accent);padding:5px 10px;margin-bottom:14px}
+.sb-it{padding:9px 11px;border-radius:8px;cursor:pointer;transition:all .18s;font-size:12px;font-weight:600;color:var(--muted);display:flex;align-items:center;gap:8px;background:none;border:none;width:100%;text-align:left;letter-spacing:.01em}
+.sb-it:hover{background:rgba(255,255,255,.05);color:var(--text)}.sb-it.active{background:var(--glow);color:var(--accent)}
+.sb-bot{margin-top:auto}
+.adm-main{flex:1;overflow-y:auto;padding:28px 34px;background:var(--bg)}
+.adm-main::-webkit-scrollbar{width:5px}.adm-main::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
 .asec{display:none}.asec.active{display:block}
-.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px}
-.stat-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px 22px}
-.stat-val{font-family:'Syne',sans-serif;font-size:30px;font-weight:800}
-.stat-lbl{color:var(--muted);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-top:4px}
-.tbl-toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px}
-.srch-wrap{position:relative}
-.tbl-search{background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:9px 13px 9px 36px;font-family:'Roboto Condensed',sans-serif;font-size:13px;outline:none;transition:border-color .2s;width:240px}
-.tbl-search:focus{border-color:var(--accent)}.tbl-search::placeholder{color:var(--border)}
-.srch-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--muted)}
-.al{color:var(--accent);font-size:13px;font-weight:700;cursor:pointer}.al:hover{color:var(--accent-dark)}
-.al-r{color:var(--red);font-size:13px;font-weight:700;cursor:pointer}.al-r:hover{color:#dc2626}
-.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
-.badge-on{background:rgba(34,197,94,.12);color:var(--green)}.badge-off{background:rgba(148,163,184,.1);color:var(--muted)}
-
-/* nav bar shared */
-.top-nav{background:rgba(15,23,42,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.07);padding:14px 38px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.top-nav-logo{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;color:var(--accent)}
-.top-nav-logo span{color:var(--text)}
-.top-nav-user{color:var(--muted);font-size:13px;font-weight:600}
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.stat-c{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px 20px}
+.stat-v{font-family:'Syne',sans-serif;font-size:28px;font-weight:800}
+.stat-l{color:var(--muted);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-top:3px}
+.tbl-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+.sw-wrap{position:relative}
+.tbl-srch{background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 12px 8px 32px;font-family:'Inter',sans-serif;font-size:12px;outline:none;transition:border-color .18s;width:220px}
+.tbl-srch:focus{border-color:var(--accent)}.tbl-srch::placeholder{color:var(--border)}
+.si-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--muted)}
+.al{color:var(--accent);font-size:12px;font-weight:600;cursor:pointer}.al:hover{color:var(--accent-d)}
+.al-r{color:var(--red);font-size:12px;font-weight:600;cursor:pointer}.al-r:hover{color:#dc2626}
+.badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-on{background:rgba(34,197,94,.1);color:var(--green)}.badge-off{background:rgba(148,163,184,.08);color:var(--muted)}
 </style>
 </head>
 <body>
 
 <div id="toast-wrap"></div>
 
-<!-- ══════════════════════════════════════════
-     MODALS
-══════════════════════════════════════════ -->
+<!-- ═══════ MODALS ═══════ -->
 
-<!-- Booking Modal -->
+<!-- Booking -->
 <div class="overlay" id="modal-book">
   <div class="mbox">
-    <div class="book-header">
-      <div class="book-title">Book a Session</div>
-      <div class="book-counselor" id="bk-counselor-label">Counselor: —</div>
-    </div>
-    <div class="book-form">
+    <div class="bk-title">Book a Session</div>
+    <div class="bk-sub" id="bk-sub">—</div>
+    <div class="bk-form">
       <div class="frow">
-        <div class="fg">
-          <label class="flabel">Full Name</label>
-          <input class="finput" id="bk-name" placeholder="e.g. Juan Dela Cruz">
-          <span class="ferr" id="e-bk-name">Full name is required.</span>
-        </div>
-        <div class="fg">
-          <label class="flabel">College / Course</label>
-          <input class="finput" id="bk-dept" placeholder="e.g. BSIT">
-          <span class="ferr" id="e-bk-dept">Course is required.</span>
-        </div>
+        <div class="fg"><label class="flabel">Full Name</label><input class="finput" id="bk-name" placeholder="e.g. Juan Dela Cruz"><span class="ferr" id="e-bk-name">Full name is required.</span></div>
+        <div class="fg"><label class="flabel">College / Course</label><input class="finput" id="bk-dept" placeholder="e.g. BSIT"><span class="ferr" id="e-bk-dept">Course is required.</span></div>
       </div>
       <div class="frow">
-        <div class="fg">
-          <label class="flabel">Email Address</label>
-          <input class="finput" id="bk-email" placeholder="you@school.edu" type="email">
-          <span class="ferr" id="e-bk-email">Enter a valid email address.</span>
-        </div>
-        <div class="fg">
-          <label class="flabel">Contact Number</label>
-          <input class="finput" id="bk-contact" placeholder="09XXXXXXXXX" maxlength="11">
-          <span class="ferr" id="e-bk-contact">Enter a valid 11-digit number.</span>
-        </div>
+        <div class="fg"><label class="flabel">Email Address</label><input class="finput" id="bk-email" placeholder="you@school.edu" type="email"><span class="ferr" id="e-bk-email">Enter a valid email address.</span></div>
+        <div class="fg"><label class="flabel">Contact Number</label><input class="finput" id="bk-contact" placeholder="09XXXXXXXXX" maxlength="11"><span class="ferr" id="e-bk-contact">Valid 11-digit number required.</span></div>
       </div>
       <div class="frow">
-        <div class="fg">
-          <label class="flabel">Preferred Date</label>
-          <input class="finput" type="date" id="bk-date">
-          <span class="ferr" id="e-bk-date">Please select a date.</span>
-        </div>
-        <div class="fg">
-          <label class="flabel">Preferred Time</label>
+        <div class="fg"><label class="flabel">Preferred Date</label><input class="finput" type="date" id="bk-date"><span class="ferr" id="e-bk-date">Please select a date.</span></div>
+        <div class="fg"><label class="flabel">Preferred Time</label>
           <select class="fselect" id="bk-time">
             <option value="">— Select a time —</option>
             <option>08:00 AM</option><option>09:00 AM</option><option>10:00 AM</option>
             <option>11:00 AM</option><option>01:00 PM</option><option>02:00 PM</option>
             <option>03:00 PM</option><option>04:00 PM</option>
           </select>
-          <span class="ferr" id="e-bk-time">Please select a time slot.</span>
+          <span class="ferr" id="e-bk-time">Please select a time.</span>
         </div>
       </div>
-      <div class="fg">
-        <label class="flabel">Concern / Topic</label>
+      <div class="fg"><label class="flabel">Concern / Topic</label>
         <select class="fselect" id="bk-topic">
           <option value="">— Choose a topic —</option>
-          <option>Academic Issue</option>
-          <option>Personal Matter</option>
-          <option>Career Guidance</option>
-          <option>Financial Concern</option>
-          <option>Mental Health &amp; Wellness</option>
-          <option>Other</option>
+          <option>Academic Issue</option><option>Personal Matter</option>
+          <option>Career Guidance</option><option>Financial Concern</option>
+          <option>Mental Health &amp; Wellness</option><option>Other</option>
         </select>
         <span class="ferr" id="e-bk-topic">Please select a topic.</span>
       </div>
-      <div class="fg">
-        <label class="flabel">Brief Description <span style="color:var(--border);font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
-        <textarea class="ftextarea" id="bk-desc" placeholder="Briefly describe your concern…"></textarea>
+      <div class="fg"><label class="flabel">Brief Description <span style="color:var(--border);font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
+        <textarea class="ftxt" id="bk-desc" placeholder="Briefly describe your concern…" style="min-height:70px"></textarea>
       </div>
     </div>
     <div class="mactions">
@@ -332,9 +291,9 @@ tbody td{padding:13px 18px;font-size:13px}
   </div>
 </div>
 
-<!-- Sign-out confirm -->
+<!-- Sign-out -->
 <div class="overlay" id="modal-signout">
-  <div class="mbox" style="max-width:400px">
+  <div class="mbox" style="max-width:380px">
     <div class="mtitle">Sign Out?</div>
     <div class="mdesc">You will be returned to the kiosk. Any unsaved work will be lost.</div>
     <div class="mactions">
@@ -344,11 +303,11 @@ tbody td{padding:13px 18px;font-size:13px}
   </div>
 </div>
 
-<!-- Admin: Add Counselor -->
+<!-- Add Counselor -->
 <div class="overlay" id="modal-add-c">
-  <div class="mbox" style="max-width:420px">
+  <div class="mbox" style="max-width:400px">
     <div class="mtitle">Add Counselor</div>
-    <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:4px">
+    <div style="display:flex;flex-direction:column;gap:11px;margin-bottom:4px">
       <div class="fg"><label class="flabel">First Name</label><input class="finput" id="ac-fn" placeholder="e.g. Maria"><span class="ferr" id="e-ac-fn">Required.</span></div>
       <div class="fg"><label class="flabel">Last Name</label><input class="finput" id="ac-ln" placeholder="e.g. Santos"><span class="ferr" id="e-ac-ln">Required.</span></div>
       <div class="fg"><label class="flabel">Email</label><input class="finput" id="ac-em" placeholder="counselor@school.edu"><span class="ferr" id="e-ac-em">Enter a valid email.</span></div>
@@ -361,11 +320,11 @@ tbody td{padding:13px 18px;font-size:13px}
   </div>
 </div>
 
-<!-- Admin: Add Student -->
+<!-- Add Student -->
 <div class="overlay" id="modal-add-s">
-  <div class="mbox" style="max-width:500px">
+  <div class="mbox" style="max-width:480px">
     <div class="mtitle">Add Student</div>
-    <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:4px">
+    <div style="display:flex;flex-direction:column;gap:11px;margin-bottom:4px">
       <div class="frow">
         <div class="fg"><label class="flabel">First Name</label><input class="finput" id="as-fn" placeholder="First"><span class="ferr" id="e-as-fn">Required.</span></div>
         <div class="fg"><label class="flabel">Last Name</label><input class="finput" id="as-ln" placeholder="Last"><span class="ferr" id="e-as-ln">Required.</span></div>
@@ -386,54 +345,54 @@ tbody td{padding:13px 18px;font-size:13px}
 
 <!-- Delete confirm -->
 <div class="overlay" id="modal-del">
-  <div class="mbox" style="max-width:400px">
+  <div class="mbox" style="max-width:380px">
     <div class="mtitle" style="color:var(--red)">Remove Record</div>
     <div class="mdesc" id="del-msg">Are you sure? This cannot be undone.</div>
     <div class="mactions">
       <button class="btn btn-secondary" onclick="closeModal('modal-del')">Cancel</button>
-      <button class="btn btn-danger" id="del-confirm-btn">Remove</button>
+      <button class="btn btn-danger" id="del-btn">Remove</button>
     </div>
   </div>
 </div>
 
 
-<!-- ══════════════════════════════════════════
-     SCREEN: KIOSK  (public landing)
-══════════════════════════════════════════ -->
+<!-- ═══════════════════════════════════════════
+     SCREEN: KIOSK
+═══════════════════════════════════════════ -->
 <div class="screen active" id="screen-kiosk">
-  <nav class="kiosk-nav">
-    <div class="kiosk-nav-logo">Counsel<span>Link</span></div>
-    <div class="kiosk-clock" id="kiosk-clock">--:-- --</div>
-    <button class="staff-link" onclick="showScreen('signin','staff')">Staff Portal</button>
+  <nav class="k-nav">
+    <div class="k-logo">Counsel<span>Link</span></div>
+    <div class="k-clock" id="k-clock">--:-- --</div>
+    <button class="staff-btn" onclick="showScreen('signin','staff')">Staff Portal</button>
   </nav>
-  <div class="kiosk-body">
-    <div class="kiosk-hero">
-      <div class="kiosk-hero-title">Book a <em>Counseling</em> Session</div>
-      <div class="kiosk-hero-sub">Browse available counselors and schedule your session — no account needed.</div>
+  <div class="k-body">
+    <div class="k-hero">
+      <div class="k-hero-title">Book a <em>Counseling</em> Session</div>
+      <div class="k-hero-sub">Browse available counselors and schedule your session — no account required.</div>
     </div>
-    <div class="search-bar">
-      <svg width="15" height="15" fill="none" stroke="var(--muted)" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      <input id="c-search" placeholder="Search counselors by name or department…" oninput="filterCounselors()">
+    <div class="srch-bar">
+      <svg width="14" height="14" fill="none" stroke="var(--muted)" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input id="c-search" placeholder="Search by name or department…" oninput="filterCounselors()">
     </div>
-    <div class="grid" id="counselors-grid"></div>
+    <div class="c-grid" id="c-grid"></div>
   </div>
 </div>
 
 
-<!-- ══════════════════════════════════════════
-     SCREEN: POST-BOOKING  (optional login)
-══════════════════════════════════════════ -->
+<!-- ═══════════════════════════════════════════
+     SCREEN: POST-BOOKING
+═══════════════════════════════════════════ -->
 <div class="screen" id="screen-postbook">
-  <div class="postbook-card">
+  <div class="pb-card">
     <div class="pb-check">✓</div>
     <div class="pb-title">Session Booked!</div>
-    <div class="pb-detail" id="pb-detail">
-      Your session with <strong id="pb-counselor">—</strong> has been scheduled for <strong id="pb-datetime">—</strong>.
+    <div class="pb-detail">
+      Your session with <strong id="pb-counselor">—</strong> is scheduled for <strong id="pb-dt">—</strong>.
     </div>
-    <hr class="pb-divider">
-    <div class="pb-prompt-title">Save your booking history?</div>
-    <div class="pb-prompt-sub">Create a free account or sign in to track your sessions and receive reminders. This step is completely optional.</div>
-    <div class="pb-actions">
+    <hr class="pb-hr">
+    <div class="pb-ptitle">Save your booking history?</div>
+    <div class="pb-psub">Create a free account or sign in to track your sessions and receive reminders. This step is completely optional.</div>
+    <div class="pb-acts">
       <button class="btn btn-primary btn-full" onclick="showScreen('signup','student')">Create an Account</button>
       <button class="btn btn-secondary btn-full" onclick="showScreen('signin','student')">Sign In to Existing Account</button>
     </div>
@@ -442,30 +401,22 @@ tbody td{padding:13px 18px;font-size:13px}
 </div>
 
 
-<!-- ══════════════════════════════════════════
+<!-- ═══════════════════════════════════════════
      SCREEN: SIGN IN
-══════════════════════════════════════════ -->
+═══════════════════════════════════════════ -->
 <div class="screen" id="screen-signin">
-  <div class="signin-card" id="signin-card">
+  <div class="si-card">
     <div class="si-logo">Counsel<span>Link</span></div>
-    <div class="si-sub" id="si-context-sub">Sign in to your account</div>
-    <div class="si-title" id="si-title">Welcome back</div>
+    <div class="si-ctx" id="si-ctx">Sign in to continue</div>
+    <div class="si-heading" id="si-heading">Welcome back</div>
     <div class="si-form">
-      <div class="fg">
-        <label class="flabel">Email Address</label>
-        <input class="finput" id="si-email" placeholder="you@school.edu" onkeydown="if(event.key==='Enter')doSignIn()">
-        <span class="ferr" id="e-si-email">Enter a valid email address.</span>
-      </div>
-      <div class="fg">
-        <label class="flabel">Password</label>
-        <div class="pw-wrap">
-          <input class="finput" type="password" id="si-pw" placeholder="••••••••" onkeydown="if(event.key==='Enter')doSignIn()">
-          <button class="eye-btn" onclick="togglePw('si-pw',this)" tabindex="-1">👁</button>
-        </div>
+      <div class="fg"><label class="flabel">Email Address</label><input class="finput" id="si-email" placeholder="you@school.edu" onkeydown="if(event.key==='Enter')doSignIn()"><span class="ferr" id="e-si-email">Enter a valid email address.</span></div>
+      <div class="fg"><label class="flabel">Password</label>
+        <div class="pw-w"><input class="finput" type="password" id="si-pw" placeholder="••••••••" onkeydown="if(event.key==='Enter')doSignIn()"><button class="eye-btn" onclick="togglePw('si-pw',this)" tabindex="-1">👁</button></div>
         <span class="ferr" id="e-si-pw">Password is required.</span>
       </div>
       <button class="btn btn-primary btn-full" onclick="doSignIn()">Sign In</button>
-      <div class="divider">or</div>
+      <div class="hdivider">or</div>
       <button class="btn btn-secondary btn-full" id="si-signup-btn" onclick="showScreen('signup','student')">Create an Account</button>
     </div>
     <button class="si-back" onclick="showScreen('kiosk')">← Back to Kiosk</button>
@@ -473,187 +424,199 @@ tbody td{padding:13px 18px;font-size:13px}
 </div>
 
 
-<!-- ══════════════════════════════════════════
+<!-- ═══════════════════════════════════════════
      SCREEN: SIGN UP
-══════════════════════════════════════════ -->
+═══════════════════════════════════════════ -->
 <div class="screen" id="screen-signup">
-  <div class="signup-card">
+  <div class="su-card">
     <div class="su-title">Create Account</div>
     <div class="su-desc">All fields are required unless noted otherwise.</div>
     <div class="su-grid">
-      <div class="su-section">Personal Information</div>
+      <div class="su-sec">Personal Information</div>
       <div class="fg"><label class="flabel">First Name</label><input class="finput" id="su-fn" placeholder="Juan"><span class="ferr" id="e-su-fn">Required.</span></div>
       <div class="fg"><label class="flabel">Last Name</label><input class="finput" id="su-ln" placeholder="Dela Cruz"><span class="ferr" id="e-su-ln">Required.</span></div>
       <div class="fg"><label class="flabel">Course</label><input class="finput" id="su-co" placeholder="e.g. BSIT"><span class="ferr" id="e-su-co">Required.</span></div>
       <div class="fg"><label class="flabel">Student Number</label><input class="finput" id="su-sn" placeholder="e.g. 2024-00001"><span class="ferr" id="e-su-sn">Required.</span></div>
       <div class="fg"><label class="flabel">Year Level</label><select class="fselect" id="su-yr"><option>1</option><option>2</option><option>3</option><option>4</option></select></div>
       <div></div>
-      <div class="su-section">Contact &amp; Security</div>
+      <div class="su-sec">Contact &amp; Security</div>
       <div class="fg"><label class="flabel">Email Address</label><input class="finput" id="su-em" placeholder="you@email.com"><span class="ferr" id="e-su-em">Enter a valid email.</span></div>
-      <div class="fg"><label class="flabel">Contact Number</label><input class="finput" id="su-cn" placeholder="09XXXXXXXXX" maxlength="11"><span class="ferr" id="e-su-cn">Enter a valid 11-digit number.</span></div>
-      <div class="fg"><label class="flabel">Password</label><div class="pw-wrap"><input class="finput" type="password" id="su-pw" placeholder="At least 8 characters"><button class="eye-btn" onclick="togglePw('su-pw',this)" tabindex="-1">👁</button></div><span class="ferr" id="e-su-pw">Must be at least 8 characters.</span></div>
-      <div class="fg"><label class="flabel">Confirm Password</label><div class="pw-wrap"><input class="finput" type="password" id="su-cp" placeholder="Re-enter password"><button class="eye-btn" onclick="togglePw('su-cp',this)" tabindex="-1">👁</button></div><span class="ferr" id="e-su-cp">Passwords do not match.</span></div>
+      <div class="fg"><label class="flabel">Contact Number</label><input class="finput" id="su-cn" placeholder="09XXXXXXXXX" maxlength="11"><span class="ferr" id="e-su-cn">Valid 11-digit number required.</span></div>
+      <div class="fg"><label class="flabel">Password</label><div class="pw-w"><input class="finput" type="password" id="su-pw" placeholder="At least 8 characters"><button class="eye-btn" onclick="togglePw('su-pw',this)" tabindex="-1">👁</button></div><span class="ferr" id="e-su-pw">Must be at least 8 characters.</span></div>
+      <div class="fg"><label class="flabel">Confirm Password</label><div class="pw-w"><input class="finput" type="password" id="su-cp" placeholder="Re-enter password"><button class="eye-btn" onclick="togglePw('su-cp',this)" tabindex="-1">👁</button></div><span class="ferr" id="e-su-cp">Passwords do not match.</span></div>
     </div>
-    <div class="su-actions">
+    <div class="su-acts">
       <button class="btn btn-secondary" onclick="showScreen('kiosk')">← Back to Kiosk</button>
-      <button class="btn btn-primary" style="padding:12px 34px" onclick="doSignUp()">Create Account</button>
+      <button class="btn btn-primary" style="padding:10px 28px" onclick="doSignUp()">Create Account</button>
     </div>
   </div>
 </div>
 
 
-<!-- ══════════════════════════════════════════
+<!-- ═══════════════════════════════════════════
      SCREEN: COUNSELOR PORTAL
-══════════════════════════════════════════ -->
+═══════════════════════════════════════════ -->
 <div class="screen" id="screen-counselor">
   <div class="top-nav">
-    <div class="top-nav-logo">Counsel<span>Link</span> <span style="font-size:12px;font-weight:400;color:var(--muted);margin-left:6px">Counselor Portal</span></div>
-    <div class="top-nav-user" id="c-greeting">—</div>
-    <button class="btn btn-secondary" style="font-size:13px;padding:8px 16px" onclick="openModal('modal-signout')">Sign Out</button>
+    <div class="tn-logo">Counsel<span>Link</span> <span style="font-size:11px;font-weight:400;color:var(--muted);margin-left:5px">Counselor Portal</span></div>
+    <div class="tn-user">
+      <span id="c-greet">—</span>
+      <!-- NOTIFICATION BELL -->
+      <div class="notif-bell-wrap" id="c-bell-wrap">
+        <button class="notif-bell" onclick="toggleNotifDropdown('c-notif-dd')" title="Notifications">
+          🔔 <span id="c-notif-label" style="font-size:12px;font-weight:600;color:var(--muted)">Notifications</span>
+        </button>
+        <span class="notif-badge" id="c-notif-badge">0</span>
+        <div class="notif-dropdown" id="c-notif-dd">
+          <div class="nd-header">
+            <span class="nd-title">Notifications</span>
+            <button class="nd-clear" onclick="clearNotifs('counselor')">Mark all read</button>
+          </div>
+          <div class="nd-list" id="c-notif-list"><div class="nd-empty">No notifications yet.</div></div>
+        </div>
+      </div>
+      <button class="btn btn-secondary" style="font-size:12px;padding:7px 14px" onclick="openModal('modal-signout')">Sign Out</button>
+    </div>
   </div>
-  <div class="tab-bar">
+  <div class="tabs">
     <button class="tab-btn active" onclick="cTab('schedule',this)">📅 My Schedule</button>
     <button class="tab-btn" onclick="cTab('session',this)">👤 Active Session</button>
     <button class="tab-btn" onclick="cTab('history',this)">📋 Session History</button>
   </div>
-  <!-- Schedule tab -->
+  <!-- Schedule -->
   <div class="tab-pane active" id="ctab-schedule">
-    <div class="portal-main">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:14px">
-        <div>
-          <div class="ph-title">My Schedule</div>
-          <div class="ph-sub" id="today-label">—</div>
-        </div>
-        <div class="toggle-row" onclick="toggleStatus(this)">
-          <div class="sw" id="status-sw"></div>
-          <span class="sw-label" id="status-lbl">Offline</span>
+    <div class="pm">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:12px">
+        <div><div class="ph">My Schedule</div><div class="ps" id="today-lbl">—</div></div>
+        <div class="sw-row" onclick="toggleStatus(this)">
+          <div class="sw" id="sw-status"></div>
+          <span class="sw-lbl" id="sw-lbl">Offline</span>
         </div>
       </div>
-      <div class="tbl-wrap">
-        <table><thead><tr><th>Type</th><th>Name / Details</th><th>Time</th><th>Action</th></tr></thead>
+      <div class="tbl-w">
+        <table><thead><tr><th>Type</th><th>Student / Detail</th><th>Time</th><th>Action</th></tr></thead>
         <tbody id="sched-tbody"></tbody></table>
-      </div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <button class="btn btn-primary" onclick="simulateIncoming()">Simulate Incoming Session</button>
-        <button class="btn btn-secondary" onclick="simulateCancel()">Simulate Cancellation</button>
       </div>
     </div>
   </div>
-  <!-- Active session tab -->
+  <!-- Active Session -->
   <div class="tab-pane" id="ctab-session">
-    <div class="portal-main">
-      <div class="ph-title" style="margin-bottom:20px">Active Session</div>
-      <div class="session-card">
-        <div class="session-student" id="active-student">—</div>
-        <div class="session-grid">
+    <div class="pm">
+      <div class="ph" style="margin-bottom:18px">Active Session</div>
+      <div class="sess-card">
+        <div class="sess-name" id="sess-student">—</div>
+        <div class="sess-grid">
           <div class="fg"><label class="flabel">Topic</label>
             <select class="fselect" id="sess-topic"><option>Academic Issue</option><option>Personal Matter</option><option>Career Guidance</option><option>Mental Health &amp; Wellness</option><option>Other</option></select>
           </div>
           <div></div>
           <div class="fg">
-            <label class="flabel" style="display:flex;justify-content:space-between;align-items:center">Recommendation <button class="btn btn-secondary" style="padding:2px 8px;font-size:11px;font-weight:600" onclick="copyField('sess-rec')">Copy</button></label>
-            <textarea class="ftextarea" id="sess-rec" placeholder="Write your recommendation here…"></textarea>
+            <label class="flabel" style="display:flex;justify-content:space-between;align-items:center">Recommendation <button class="btn btn-secondary" style="padding:2px 8px;font-size:11px" onclick="copyF('sess-rec')">Copy</button></label>
+            <textarea class="ftxt" id="sess-rec" placeholder="Write your recommendation here…"></textarea>
           </div>
           <div class="fg">
-            <label class="flabel" style="display:flex;justify-content:space-between;align-items:center">Session Notes <button class="btn btn-secondary" style="padding:2px 8px;font-size:11px;font-weight:600" onclick="copyField('sess-notes')">Copy</button></label>
-            <textarea class="ftextarea" id="sess-notes" placeholder="Private notes for this session…"></textarea>
+            <label class="flabel" style="display:flex;justify-content:space-between;align-items:center">Session Notes <button class="btn btn-secondary" style="padding:2px 8px;font-size:11px" onclick="copyF('sess-notes')">Copy</button></label>
+            <textarea class="ftxt" id="sess-notes" placeholder="Private notes for this session…"></textarea>
           </div>
         </div>
-        <div class="sess-actions">
+        <div class="sess-acts">
           <button class="btn btn-secondary" onclick="cTab('schedule',null)">← Back</button>
-          <div style="display:flex;gap:10px">
-            <button class="btn btn-secondary" onclick="toast('Notes saved.','success')">Save Draft</button>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-secondary" onclick="toast('Draft saved.','success')">Save Draft</button>
             <button class="btn btn-primary" onclick="finishSession()">Finish Session ✓</button>
           </div>
         </div>
       </div>
     </div>
   </div>
-  <!-- History tab -->
+  <!-- History -->
   <div class="tab-pane" id="ctab-history">
-    <div class="portal-main">
-      <div class="ph-title">Session History</div>
-      <div class="ph-sub">All completed sessions.</div>
-      <div class="tbl-wrap"><table><thead><tr><th>Student</th><th>Topic</th><th>Date</th><th>Status</th></tr></thead>
+    <div class="pm">
+      <div class="ph">Session History</div>
+      <div class="ps">All completed sessions.</div>
+      <div class="tbl-w"><table><thead><tr><th>Student</th><th>Topic</th><th>Date</th><th>Status</th></tr></thead>
       <tbody id="hist-tbody"></tbody></table></div>
     </div>
   </div>
 </div>
 
 
-<!-- ══════════════════════════════════════════
+<!-- ═══════════════════════════════════════════
      SCREEN: ADMIN PORTAL
-══════════════════════════════════════════ -->
+═══════════════════════════════════════════ -->
 <div class="screen" id="screen-admin">
   <div class="top-nav">
-    <div class="top-nav-logo">Counsel<span>Link</span> <span style="font-size:12px;font-weight:400;color:var(--muted);margin-left:6px">Admin Portal</span></div>
-    <div class="top-nav-user">Administrator</div>
-    <button class="btn btn-secondary" style="font-size:13px;padding:8px 16px" onclick="openModal('modal-signout')">Sign Out</button>
+    <div class="tn-logo">Counsel<span>Link</span> <span style="font-size:11px;font-weight:400;color:var(--muted);margin-left:5px">Admin Portal</span></div>
+    <div class="tn-user">
+      <span>Administrator</span>
+      <!-- ADMIN NOTIFICATION BELL -->
+      <div class="notif-bell-wrap" id="a-bell-wrap">
+        <button class="notif-bell" onclick="toggleNotifDropdown('a-notif-dd')" title="Notifications">
+          🔔 <span style="font-size:12px;font-weight:600;color:var(--muted)">Notifications</span>
+        </button>
+        <span class="notif-badge" id="a-notif-badge">0</span>
+        <div class="notif-dropdown" id="a-notif-dd">
+          <div class="nd-header">
+            <span class="nd-title">System Notifications</span>
+            <button class="nd-clear" onclick="clearNotifs('admin')">Mark all read</button>
+          </div>
+          <div class="nd-list" id="a-notif-list"><div class="nd-empty">No notifications yet.</div></div>
+        </div>
+      </div>
+      <button class="btn btn-secondary" style="font-size:12px;padding:7px 14px" onclick="openModal('modal-signout')">Sign Out</button>
+    </div>
   </div>
-  <div class="admin-wrap">
+  <div class="adm-wrap">
     <div class="sidebar">
       <div class="sb-logo">CounselLink</div>
-      <button class="sb-item active" onclick="aSection('dashboard',this)"><span>🏠</span>Dashboard</button>
-      <button class="sb-item" onclick="aSection('counselors',this)"><span>🧑‍💼</span>Counselors</button>
-      <button class="sb-item" onclick="aSection('students',this)"><span>🎓</span>Students</button>
-      <button class="sb-item" onclick="aSection('sessions',this)"><span>📋</span>Sessions</button>
-      <div class="sb-bottom">
-        <button class="sb-item" onclick="openModal('modal-signout')"><span>🚪</span>Sign Out</button>
+      <button class="sb-it active" onclick="aSection('dashboard',this)"><span>🏠</span>Dashboard</button>
+      <button class="sb-it" onclick="aSection('counselors',this)"><span>🧑‍💼</span>Counselors</button>
+      <button class="sb-it" onclick="aSection('students',this)"><span>🎓</span>Students</button>
+      <button class="sb-it" onclick="aSection('sessions',this)"><span>📋</span>Sessions</button>
+      <div class="sb-bot">
+        <button class="sb-it" onclick="openModal('modal-signout')"><span>🚪</span>Sign Out</button>
       </div>
     </div>
-    <div class="admin-main">
+    <div class="adm-main">
       <!-- Dashboard -->
       <div class="asec active" id="asec-dashboard">
-        <div class="ph-title">Dashboard</div>
-        <div class="ph-sub">System overview</div>
+        <div class="ph">Dashboard</div><div class="ps">System overview</div>
         <div class="stat-row">
-          <div class="stat-card"><div class="stat-val" id="st-c">—</div><div class="stat-lbl">Counselors</div></div>
-          <div class="stat-card"><div class="stat-val" id="st-s">—</div><div class="stat-lbl">Students</div></div>
-          <div class="stat-card"><div class="stat-val" id="st-b">—</div><div class="stat-lbl">Total Sessions</div></div>
+          <div class="stat-c"><div class="stat-v" id="st-c">—</div><div class="stat-l">Counselors</div></div>
+          <div class="stat-c"><div class="stat-v" id="st-s">—</div><div class="stat-l">Students</div></div>
+          <div class="stat-c"><div class="stat-v" id="st-b">—</div><div class="stat-l">Total Sessions</div></div>
         </div>
-        <div class="tbl-wrap"><table><thead><tr><th>#</th><th>Student</th><th>Counselor</th><th>Status</th><th>Date / Time</th></tr></thead>
+        <div class="tbl-w"><table><thead><tr><th>#</th><th>Student</th><th>Counselor</th><th>Status</th><th>Date / Time</th></tr></thead>
         <tbody id="recent-tbody"></tbody></table></div>
       </div>
       <!-- Counselors -->
       <div class="asec" id="asec-counselors">
-        <div class="ph-title">Manage Counselors</div>
-        <div class="tbl-toolbar">
-          <div class="srch-wrap">
-            <svg class="srch-icon" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-            <input class="tbl-search" placeholder="Search counselors…" oninput="filterTbl('adm-c-tbody',this.value)">
-          </div>
+        <div class="ph">Manage Counselors</div>
+        <div class="tbl-bar">
+          <div class="sw-wrap"><svg class="si-icon" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input class="tbl-srch" placeholder="Search counselors…" oninput="filterTbl('adm-c-tb',this.value)"></div>
           <button class="btn btn-primary" onclick="openModal('modal-add-c')">+ Add Counselor</button>
         </div>
-        <div class="tbl-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Department</th><th>Status</th><th>Actions</th></tr></thead>
-        <tbody id="adm-c-tbody"></tbody></table></div>
+        <div class="tbl-w"><table><thead><tr><th>Name</th><th>Email</th><th>Department</th><th>Status</th><th>Actions</th></tr></thead><tbody id="adm-c-tb"></tbody></table></div>
       </div>
       <!-- Students -->
       <div class="asec" id="asec-students">
-        <div class="ph-title">Manage Students</div>
-        <div class="tbl-toolbar">
-          <div class="srch-wrap">
-            <svg class="srch-icon" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-            <input class="tbl-search" placeholder="Search students…" oninput="filterTbl('adm-s-tbody',this.value)">
-          </div>
+        <div class="ph">Manage Students</div>
+        <div class="tbl-bar">
+          <div class="sw-wrap"><svg class="si-icon" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input class="tbl-srch" placeholder="Search students…" oninput="filterTbl('adm-s-tb',this.value)"></div>
           <button class="btn btn-primary" onclick="openModal('modal-add-s')">+ Add Student</button>
         </div>
-        <div class="tbl-wrap"><table><thead><tr><th>Name</th><th>Student No.</th><th>Course</th><th>Email</th><th>Year</th><th>Actions</th></tr></thead>
-        <tbody id="adm-s-tbody"></tbody></table></div>
+        <div class="tbl-w"><table><thead><tr><th>Name</th><th>Student No.</th><th>Course</th><th>Email</th><th>Year</th><th>Actions</th></tr></thead><tbody id="adm-s-tb"></tbody></table></div>
       </div>
       <!-- Sessions -->
       <div class="asec" id="asec-sessions">
-        <div class="ph-title">Manage Sessions</div>
-        <div class="tbl-toolbar">
-          <div class="srch-wrap">
-            <svg class="srch-icon" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-            <input class="tbl-search" placeholder="Search sessions…" oninput="filterTbl('adm-b-tbody',this.value)">
-          </div>
-          <select class="fselect" style="width:160px;padding:9px 13px" onchange="filterSessionStatus(this.value)">
+        <div class="ph">Manage Sessions</div>
+        <div class="tbl-bar">
+          <div class="sw-wrap"><svg class="si-icon" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input class="tbl-srch" placeholder="Search sessions…" oninput="filterTbl('adm-b-tb',this.value)"></div>
+          <select class="fselect" style="width:148px;padding:7px 12px;font-size:12px" onchange="filterSessionStatus(this.value)">
             <option value="">All Statuses</option><option>Pending</option><option>Finished</option><option>Cancelled</option>
           </select>
         </div>
-        <div class="tbl-wrap"><table><thead><tr><th>#</th><th>Student</th><th>Counselor</th><th>Topic</th><th>Date / Time</th><th>Status</th><th>Actions</th></tr></thead>
-        <tbody id="adm-b-tbody"></tbody></table></div>
+        <div class="tbl-w"><table><thead><tr><th>#</th><th>Student</th><th>Counselor</th><th>Topic</th><th>Date / Time</th><th>Status</th><th>Actions</th></tr></thead><tbody id="adm-b-tb"></tbody></table></div>
       </div>
     </div>
   </div>
@@ -661,22 +624,22 @@ tbody td{padding:13px 18px;font-size:13px}
 
 
 <script>
-// ─────────────────────────────────
+// ═══════════════════════════════
 // DATA
-// ─────────────────────────────────
+// ═══════════════════════════════
 const USERS = [
-  { email:'counselor1@school.edu', password:'counselor1', role:'Counselor', name:'Maria Santos' },
-  { email:'counselor2@school.edu', password:'counselor2', role:'Counselor', name:'Jose Reyes' },
-  { email:'counselor3@school.edu', password:'counselor3', role:'Counselor', name:'Anne Cruz' },
-  { email:'counselor4@school.edu', password:'counselor4', role:'Counselor', name:'Marco Garcia' },
-  { email:'admin@school.edu',     password:'admin123',     role:'Admin',     name:'Admin' },
+  { email:'counselor1@school.edu', password:'counselor1', role:'Counselor', name:'Maria Santos',  cid:1 },
+  { email:'counselor2@school.edu', password:'counselor2', role:'Counselor', name:'Jose Reyes',    cid:2 },
+  { email:'counselor3@school.edu', password:'counselor3', role:'Counselor', name:'Anna Cruz',     cid:3 },
+  { email:'counselor4@school.edu', password:'counselor4', role:'Counselor', name:'Marco Garcia',  cid:4 },
+  { email:'admin@school.edu',      password:'admin123',   role:'Admin',     name:'Admin' },
 ];
 
 let COUNSELORS = [
-  { id:1, fname:'Maria',  lname:'Santos',  email:'msantos@school.edu',  dept:'Psychology',   available:true  },
-  { id:2, fname:'Jose',   lname:'Reyes',   email:'jreyes@school.edu',   dept:'BSED',         available:false },
-  { id:3, fname:'Anna',   lname:'Cruz',    email:'acruz@school.edu',    dept:'Social Work',  available:true  },
-  { id:4, fname:'Marco',  lname:'Garcia',  email:'mgarcia@school.edu',  dept:'Guidance',     available:true  },
+  { id:1, fname:'Maria',  lname:'Santos', email:'msantos@school.edu', dept:'Psychology',  available:true  },
+  { id:2, fname:'Jose',   lname:'Reyes',  email:'jreyes@school.edu',  dept:'BSED',        available:false },
+  { id:3, fname:'Anna',   lname:'Cruz',   email:'acruz@school.edu',   dept:'Social Work', available:true  },
+  { id:4, fname:'Marco',  lname:'Garcia', email:'mgarcia@school.edu', dept:'Guidance',    available:true  },
 ];
 let C_SEQ = 5;
 
@@ -688,11 +651,15 @@ let STUDENTS = [
 let S_SEQ = 4;
 
 let SESSIONS = [
-  { id:1, student:'Jake Doe',    counselor:'Maria Santos', topic:'Academic Issue',  datetime:'May 10 | 9:00 AM',  status:'Finished'  },
-  { id:2, student:'Maria Santos',counselor:'Jose Reyes',   topic:'Personal Matter', datetime:'May 14 | 2:00 PM',  status:'Pending'   },
-  { id:3, student:'Carl Aquino', counselor:'Anna Cruz',    topic:'Career Guidance', datetime:'May 15 | 1:00 PM',  status:'Cancelled' },
+  { id:1, student:'Jake Doe',     counselor:'Maria Santos', counselorId:1, topic:'Academic Issue',  datetime:'May 10 | 9:00 AM',  status:'Finished'  },
+  { id:2, student:'Maria Santos', counselor:'Jose Reyes',   counselorId:2, topic:'Personal Matter', datetime:'May 14 | 2:00 PM',  status:'Pending'   },
+  { id:3, student:'Carl Aquino',  counselor:'Anna Cruz',    counselorId:3, topic:'Career Guidance', datetime:'May 15 | 1:00 PM',  status:'Cancelled' },
 ];
 let B_SEQ = 4;
+
+// NOTIFICATIONS: { id, targetCounselorId ('all' for admin), type, msg, time, read }
+let NOTIFICATIONS = [];
+let N_SEQ = 1;
 
 const SCHEDULE = [
   { type:'Session', detail:'Jake Doe',       time:'9:00 – 10:00 AM' },
@@ -700,7 +667,7 @@ const SCHEDULE = [
   { type:'Session', detail:'Maria Santos',   time:'1:00 – 2:00 PM' },
 ];
 let HISTORY = [
-  { student:'Jake Doe',  topic:'Academic Issue',  date:'May 10, 2026', status:'Finished' },
+  { student:'Jake Doe',    topic:'Academic Issue',  date:'May 10, 2026', status:'Finished' },
   { student:'Carl Aquino', topic:'Career Guidance', date:'May 8, 2026',  status:'Finished' },
 ];
 
@@ -708,62 +675,156 @@ let currentUser = null;
 let selectedCounselor = null;
 let counselorOnline = false;
 let sessionStatusFilter = '';
-let signinContext = 'staff'; // 'staff' | 'student'
+let signinCtx = 'staff';
 
-// ─────────────────────────────────
-// SCREEN ROUTING
-// ─────────────────────────────────
-function showScreen(name, ctx) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('screen-' + name).classList.add('active');
+// ═══════════════════════════════
+// NOTIFICATIONS
+// ═══════════════════════════════
+function addNotification(counselorId, type, msg) {
+  // counselorId: specific id, or 'all' for admin-only, or 'broadcast' for all counselors
+  NOTIFICATIONS.unshift({ id: N_SEQ++, counselorId, type, msg, time: new Date(), read: false });
+  refreshNotifBadges();
+}
 
-  if (name === 'kiosk')    { renderCounselors(); updateClock(); }
-  if (name === 'admin')    { refreshStats(); renderAdmC(); renderAdmS(); renderAdmB(); renderRecent(); }
-  if (name === 'counselor'){ renderSched(); renderHist(); setTodayLabel(); }
-  if (name === 'signin')   {
-    signinContext = ctx || 'staff';
-    const isStaff = signinContext === 'staff';
-    document.getElementById('si-context-sub').textContent = isStaff ? 'Staff sign-in — counselors and administrators' : 'Sign in to your student account';
-    document.getElementById('si-title').textContent = isStaff ? 'Staff Portal' : 'Welcome back';
-    document.getElementById('si-signup-btn').style.display = isStaff ? 'none' : '';
+function getNotifs(role, cid) {
+  if (role === 'Admin') return NOTIFICATIONS.filter(n => n.counselorId === 'all' || n.counselorId === 'broadcast' || typeof n.counselorId === 'number');
+  if (role === 'Counselor') return NOTIFICATIONS.filter(n => n.counselorId === cid || n.counselorId === 'broadcast');
+  return [];
+}
+
+function unreadCount(role, cid) {
+  return getNotifs(role, cid).filter(n => !n.read).length;
+}
+
+function refreshNotifBadges() {
+  // Counselor badge
+  if (currentUser && currentUser.role === 'Counselor') {
+    const cnt = unreadCount('Counselor', currentUser.cid);
+    const badge = document.getElementById('c-notif-badge');
+    badge.textContent = cnt;
+    badge.classList.toggle('show', cnt > 0);
+  }
+  // Admin badge
+  if (currentUser && currentUser.role === 'Admin') {
+    const cnt = unreadCount('Admin', null);
+    const badge = document.getElementById('a-notif-badge');
+    badge.textContent = cnt;
+    badge.classList.toggle('show', cnt > 0);
   }
 }
 
-// ─────────────────────────────────
+function renderNotifList(listId, role, cid) {
+  const el = document.getElementById(listId);
+  const notifs = getNotifs(role, cid);
+  if (!notifs.length) { el.innerHTML = '<div class="nd-empty">No notifications yet.</div>'; return; }
+  el.innerHTML = notifs.map(n => {
+    const isCancel = n.type === 'cancel';
+    const timeStr = n.time.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true});
+    return `<div class="nd-item${n.read ? '' : ' unread'}" onclick="markRead(${n.id},'${listId}','${role}',${cid})">
+      <div class="nd-icon${isCancel ? ' cancel-icon' : ''}">${isCancel ? '🚫' : '📩'}</div>
+      <div class="nd-body">
+        <div class="nd-msg${isCancel ? ' cancel-msg' : ''}">${n.msg}</div>
+        <div class="nd-time">${timeStr} · ${n.time.toLocaleDateString('en-US',{month:'short',day:'numeric'})}</div>
+      </div>
+      <div class="nd-dot${n.read ? ' hidden' : ''}"></div>
+    </div>`;
+  }).join('');
+}
+
+function markRead(id, listId, role, cid) {
+  const n = NOTIFICATIONS.find(n => n.id === id);
+  if (n) n.read = true;
+  renderNotifList(listId, role, cid);
+  refreshNotifBadges();
+}
+
+function clearNotifs(role) {
+  const cid = currentUser?.cid;
+  NOTIFICATIONS.forEach(n => {
+    if (role === 'Admin') n.read = true;
+    else if (n.counselorId === cid || n.counselorId === 'broadcast') n.read = true;
+  });
+  if (role === 'counselor' || (currentUser && currentUser.role === 'Counselor')) {
+    renderNotifList('c-notif-list', 'Counselor', currentUser?.cid);
+  }
+  if (role === 'admin' || (currentUser && currentUser.role === 'Admin')) {
+    renderNotifList('a-notif-list', 'Admin', null);
+  }
+  refreshNotifBadges();
+}
+
+function toggleNotifDropdown(id) {
+  const dd = document.getElementById(id);
+  const isOpen = dd.classList.toggle('open');
+  // Render list when opened
+  if (isOpen && currentUser) {
+    if (id === 'c-notif-dd') renderNotifList('c-notif-list', 'Counselor', currentUser.cid);
+    if (id === 'a-notif-dd') renderNotifList('a-notif-list', 'Admin', null);
+  }
+  // Close other dropdowns
+  document.querySelectorAll('.notif-dropdown').forEach(el => {
+    if (el.id !== id) el.classList.remove('open');
+  });
+}
+
+// Close dropdowns on outside click
+document.addEventListener('click', e => {
+  if (!e.target.closest('.notif-bell-wrap')) {
+    document.querySelectorAll('.notif-dropdown.open').forEach(el => el.classList.remove('open'));
+  }
+});
+
+// ═══════════════════════════════
+// SCREEN ROUTING
+// ═══════════════════════════════
+function showScreen(name, ctx) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  if (name === 'kiosk')    { renderCounselors(); }
+  if (name === 'admin')    { refreshStats(); renderAdmC(); renderAdmS(); renderAdmB(); renderRecent(); }
+  if (name === 'counselor'){ renderSched(); renderHist(); setTodayLbl(); }
+  if (name === 'signin')   {
+    signinCtx = ctx || 'staff';
+    const staff = signinCtx === 'staff';
+    document.getElementById('si-ctx').textContent = staff
+      ? 'Staff sign-in — for counselors and administrators only.'
+      : 'Sign in to track your counseling sessions.';
+    document.getElementById('si-heading').textContent = staff ? 'Staff Portal' : 'Welcome back';
+    document.getElementById('si-signup-btn').style.display = staff ? 'none' : '';
+  }
+}
+
+// ═══════════════════════════════
 // TOAST
-// ─────────────────────────────────
+// ═══════════════════════════════
 function toast(msg, type='info') {
   const icons = { success:'✅', error:'❌', info:'ℹ️' };
   const el = document.createElement('div');
   el.className = `toast ${type}`;
   el.innerHTML = `<span>${icons[type]||'ℹ️'}</span><span>${msg}</span>`;
   document.getElementById('toast-wrap').appendChild(el);
-  setTimeout(() => el.remove(), 3700);
+  setTimeout(() => el.remove(), 3800);
 }
 
-// ─────────────────────────────────
+// ═══════════════════════════════
 // MODAL
-// ─────────────────────────────────
+// ═══════════════════════════════
 function openModal(id)  { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 document.querySelectorAll('.overlay').forEach(m =>
   m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); })
 );
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') {
-    document.querySelectorAll('.overlay.open').forEach(m => m.classList.remove('open'));
-    document.querySelectorAll('.notif-pop').forEach(n => n.remove());
-  }
+  if (e.key === 'Escape') document.querySelectorAll('.overlay.open').forEach(m => m.classList.remove('open'));
 });
 
-// ─────────────────────────────────
-// VALIDATION HELPERS
-// ─────────────────────────────────
+// ═══════════════════════════════
+// VALIDATION
+// ═══════════════════════════════
 const isEmail = e => /^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(e);
 function setErr(id, show) {
   document.getElementById('e-' + id)?.classList.toggle('show', show);
-  const inp = document.getElementById(id);
-  if (inp) inp.classList.toggle('err', show);
+  document.getElementById(id)?.classList.toggle('err', show);
 }
 function clearErrs(ids) { ids.forEach(id => setErr(id, false)); }
 function togglePw(id, btn) {
@@ -772,21 +833,16 @@ function togglePw(id, btn) {
   btn.textContent = i.type === 'password' ? '👁' : '🙈';
 }
 
-// ─────────────────────────────────
-// KIOSK — COUNSELOR CARDS
-// ─────────────────────────────────
+// ═══════════════════════════════
+// KIOSK
+// ═══════════════════════════════
 function initials(c) { return (c.fname[0] + c.lname[0]).toUpperCase(); }
 
 function renderCounselors(q = '') {
   const f = q.toLowerCase();
-  const grid = document.getElementById('counselors-grid');
-  const list = COUNSELORS.filter(c =>
-    !f || `${c.fname} ${c.lname} ${c.dept}`.toLowerCase().includes(f)
-  );
-  if (!list.length) {
-    grid.innerHTML = '<div class="no-results">No counselors found matching your search.</div>';
-    return;
-  }
+  const grid = document.getElementById('c-grid');
+  const list = COUNSELORS.filter(c => !f || `${c.fname} ${c.lname} ${c.dept}`.toLowerCase().includes(f));
+  if (!list.length) { grid.innerHTML = '<div class="no-results">No counselors found.</div>'; return; }
   grid.innerHTML = list.map(c => `
     <div class="c-card ${c.available ? 'avail' : 'offline'}">
       <div class="avatar ${c.available ? 'avail' : 'offline'}">${initials(c)}</div>
@@ -796,34 +852,28 @@ function renderCounselors(q = '') {
         <div class="dot ${c.available ? 'avail' : 'offline'}"></div>
         <span style="color:${c.available ? 'var(--text)' : 'var(--muted)'}">${c.available ? 'Available Now' : 'Currently Offline'}</span>
       </div>
-      <button class="book-btn ${c.available ? 'avail' : 'offline'}"
-        ${c.available ? `onclick="openBooking(${c.id})"` : 'disabled'}>
+      <button class="book-btn ${c.available ? 'avail' : 'offline'}" ${c.available ? `onclick="openBooking(${c.id})"` : 'disabled'}>
         ${c.available ? 'Book a Session' : 'Unavailable'}
       </button>
-    </div>
-  `).join('');
+    </div>`).join('');
 }
 
-function filterCounselors() {
-  renderCounselors(document.getElementById('c-search').value);
-}
+function filterCounselors() { renderCounselors(document.getElementById('c-search').value); }
 
-// ─────────────────────────────────
+// ═══════════════════════════════
 // BOOKING
-// ─────────────────────────────────
+// ═══════════════════════════════
 function openBooking(cid) {
   selectedCounselor = COUNSELORS.find(c => c.id === cid);
-  document.getElementById('bk-counselor-label').textContent =
+  document.getElementById('bk-sub').textContent =
     `Counselor: ${selectedCounselor.fname} ${selectedCounselor.lname} — ${selectedCounselor.dept}`;
-  // Set min date to today
   document.getElementById('bk-date').min = new Date().toISOString().split('T')[0];
-  // Pre-fill if logged in student
-  if (currentUser && currentUser.role === 'Student') {
+  if (currentUser?.role === 'Student') {
     const s = STUDENTS.find(st => st.email === currentUser.email);
     if (s) {
-      document.getElementById('bk-name').value    = `${s.fname} ${s.lname}`;
-      document.getElementById('bk-email').value   = s.email;
-      document.getElementById('bk-dept').value    = s.course;
+      document.getElementById('bk-name').value  = `${s.fname} ${s.lname}`;
+      document.getElementById('bk-email').value = s.email;
+      document.getElementById('bk-dept').value  = s.course;
     }
   }
   openModal('modal-book');
@@ -834,37 +884,53 @@ function submitBooking() {
   clearErrs(ids);
   const v = id => document.getElementById(id).value.trim();
   let ok = true;
-  if (!v('bk-name'))                    { setErr('bk-name', true);    ok = false; }
-  if (!v('bk-dept'))                    { setErr('bk-dept', true);    ok = false; }
-  if (!isEmail(v('bk-email')))          { setErr('bk-email', true);   ok = false; }
-  if (!/^\d{11}$/.test(v('bk-contact'))){ setErr('bk-contact', true); ok = false; }
-  if (!v('bk-date'))                    { setErr('bk-date', true);    ok = false; }
-  if (!v('bk-time'))                    { setErr('bk-time', true);    ok = false; }
-  if (!v('bk-topic'))                   { setErr('bk-topic', true);   ok = false; }
+  if (!v('bk-name'))                     { setErr('bk-name',    true); ok=false; }
+  if (!v('bk-dept'))                     { setErr('bk-dept',    true); ok=false; }
+  if (!isEmail(v('bk-email')))           { setErr('bk-email',   true); ok=false; }
+  if (!/^\d{11}$/.test(v('bk-contact'))){ setErr('bk-contact', true); ok=false; }
+  if (!v('bk-date'))                     { setErr('bk-date',    true); ok=false; }
+  if (!v('bk-time'))                     { setErr('bk-time',    true); ok=false; }
+  if (!v('bk-topic'))                    { setErr('bk-topic',   true); ok=false; }
   if (!ok) return;
 
   const dateStr = new Date(v('bk-date')).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
-  SESSIONS.push({
+  const session = {
     id: B_SEQ++,
-    student:   v('bk-name'),
-    counselor: `${selectedCounselor.fname} ${selectedCounselor.lname}`,
-    topic:     v('bk-topic'),
-    datetime:  `${dateStr} | ${v('bk-time')}`,
-    status:    'Pending'
-  });
+    student:      v('bk-name'),
+    counselor:    `${selectedCounselor.fname} ${selectedCounselor.lname}`,
+    counselorId:  selectedCounselor.id,
+    topic:        v('bk-topic'),
+    datetime:     `${dateStr} | ${v('bk-time')}`,
+    status:       'Pending'
+  };
+  SESSIONS.push(session);
+
+  // ── FIRE NOTIFICATIONS ──
+  const studentName = v('bk-name');
+  const topic       = v('bk-topic');
+  const timeSlot    = `${dateStr} at ${v('bk-time')}`;
+
+  // Notify the specific counselor
+  addNotification(
+    selectedCounselor.id,
+    'booking',
+    `<strong>${studentName}</strong> booked a session with you for <strong>${topic}</strong> on ${timeSlot}.`
+  );
+  // Notify admin
+  addNotification(
+    'all',
+    'booking',
+    `New booking: <strong>${studentName}</strong> → <strong>${selectedCounselor.fname} ${selectedCounselor.lname}</strong> for ${topic} on ${timeSlot}.`
+  );
 
   closeModal('modal-book');
-
-  // populate post-booking screen
-  document.getElementById('pb-counselor').textContent = `${selectedCounselor.fname} ${selectedCounselor.lname}`;
-  document.getElementById('pb-datetime').textContent  = `${dateStr} at ${v('bk-time')}`;
-
-  // clear form
   ids.forEach(id => { document.getElementById(id).value = ''; });
   document.getElementById('bk-desc').value = '';
 
-  // If already logged in as student, skip optional login prompt
-  if (currentUser && currentUser.role === 'Student') {
+  document.getElementById('pb-counselor').textContent = `${selectedCounselor.fname} ${selectedCounselor.lname}`;
+  document.getElementById('pb-dt').textContent = timeSlot;
+
+  if (currentUser?.role === 'Student') {
     toast('Booking confirmed!', 'success');
     showScreen('kiosk');
   } else {
@@ -872,16 +938,16 @@ function submitBooking() {
   }
 }
 
-// ─────────────────────────────────
+// ═══════════════════════════════
 // AUTH
-// ─────────────────────────────────
+// ═══════════════════════════════
 function doSignIn() {
   clearErrs(['si-email','si-pw']);
   const email = document.getElementById('si-email').value.trim();
   const pw    = document.getElementById('si-pw').value;
   let ok = true;
-  if (!isEmail(email)) { setErr('si-email', true); ok = false; }
-  if (!pw)             { setErr('si-pw', true);    ok = false; }
+  if (!isEmail(email)) { setErr('si-email', true); ok=false; }
+  if (!pw)             { setErr('si-pw',    true); ok=false; }
   if (!ok) return;
 
   const user = USERS.find(u => u.email === email && u.password === pw);
@@ -892,10 +958,12 @@ function doSignIn() {
     toast(`Welcome back, ${user.name.split(' ')[0]}!`, 'success');
     showScreen('kiosk');
   } else if (user.role === 'Counselor') {
-    document.getElementById('c-greeting').textContent = user.name;
+    document.getElementById('c-greet').textContent = user.name;
     showScreen('counselor');
+    refreshNotifBadges();
   } else {
     showScreen('admin');
+    refreshNotifBadges();
   }
 }
 
@@ -905,56 +973,54 @@ function doSignUp() {
   const v  = id => document.getElementById(id).value.trim();
   const vp = id => document.getElementById(id).value;
   let ok = true;
-  if (!v('su-fn'))                      { setErr('su-fn', true); ok = false; }
-  if (!v('su-ln'))                      { setErr('su-ln', true); ok = false; }
-  if (!v('su-co'))                      { setErr('su-co', true); ok = false; }
-  if (!v('su-sn'))                      { setErr('su-sn', true); ok = false; }
-  if (!isEmail(v('su-em')))             { setErr('su-em', true); ok = false; }
-  if (!/^\d{11}$/.test(v('su-cn')))     { setErr('su-cn', true); ok = false; }
-  if (vp('su-pw').length < 8)           { setErr('su-pw', true); ok = false; }
-  if (vp('su-pw') !== vp('su-cp'))      { setErr('su-cp', true); ok = false; }
+  if (!v('su-fn'))                  { setErr('su-fn', true); ok=false; }
+  if (!v('su-ln'))                  { setErr('su-ln', true); ok=false; }
+  if (!v('su-co'))                  { setErr('su-co', true); ok=false; }
+  if (!v('su-sn'))                  { setErr('su-sn', true); ok=false; }
+  if (!isEmail(v('su-em')))         { setErr('su-em', true); ok=false; }
+  if (!/^\d{11}$/.test(v('su-cn'))){ setErr('su-cn', true); ok=false; }
+  if (vp('su-pw').length < 8)       { setErr('su-pw', true); ok=false; }
+  if (vp('su-pw') !== vp('su-cp')) { setErr('su-cp', true); ok=false; }
   if (!ok) return;
 
-  USERS.push({ email: v('su-em'), password: vp('su-pw'), role: 'Student', name: `${v('su-fn')} ${v('su-ln')}` });
-  STUDENTS.push({ id: S_SEQ++, fname: v('su-fn'), lname: v('su-ln'), studnum: v('su-sn'), email: v('su-em'), course: v('su-co'), year: parseInt(document.getElementById('su-yr').value) });
-
+  USERS.push({ email:v('su-em'), password:vp('su-pw'), role:'Student', name:`${v('su-fn')} ${v('su-ln')}` });
+  STUDENTS.push({ id:S_SEQ++, fname:v('su-fn'), lname:v('su-ln'), studnum:v('su-sn'), email:v('su-em'), course:v('su-co'), year:parseInt(document.getElementById('su-yr').value) });
   toast('Account created! Please sign in.', 'success');
-  showScreen('signin', 'student');
+  showScreen('signin','student');
 }
 
 function doSignOut() {
   closeModal('modal-signout');
+  // Close all notif dropdowns
+  document.querySelectorAll('.notif-dropdown').forEach(d => d.classList.remove('open'));
   currentUser = null;
   showScreen('kiosk');
 }
 
-// ─────────────────────────────────
+// ═══════════════════════════════
 // COUNSELOR PORTAL
-// ─────────────────────────────────
+// ═══════════════════════════════
 function cTab(name, btn) {
   document.querySelectorAll('#screen-counselor .tab-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('#screen-counselor .tab-pane').forEach(p => p.classList.remove('active'));
   document.getElementById('ctab-' + name).classList.add('active');
   if (btn) btn.classList.add('active');
-  else {
-    const map = { schedule:0, session:1, history:2 };
-    document.querySelectorAll('#screen-counselor .tab-btn')[map[name] ?? 0]?.classList.add('active');
-  }
+  else { const m={schedule:0,session:1,history:2}; document.querySelectorAll('#screen-counselor .tab-btn')[m[name]??0]?.classList.add('active'); }
 }
 
-function setTodayLabel() {
-  document.getElementById('today-label').textContent =
+function setTodayLbl() {
+  document.getElementById('today-lbl').textContent =
     'Today — ' + new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
 }
 
 function toggleStatus(row) {
   counselorOnline = !counselorOnline;
-  document.getElementById('status-sw').classList.toggle('on', counselorOnline);
-  const lbl = document.getElementById('status-lbl');
+  document.getElementById('sw-status').classList.toggle('on', counselorOnline);
+  const lbl = document.getElementById('sw-lbl');
   lbl.textContent = counselorOnline ? 'Available' : 'Offline';
   lbl.classList.toggle('on', counselorOnline);
   if (currentUser) {
-    const c = COUNSELORS.find(c => c.email === currentUser.email);
+    const c = COUNSELORS.find(c => c.email === currentUser.email || c.id === currentUser.cid);
     if (c) c.available = counselorOnline;
   }
   toast(`Status set to ${counselorOnline ? 'Available' : 'Offline'}.`, 'success');
@@ -963,72 +1029,47 @@ function toggleStatus(row) {
 function renderSched() {
   document.getElementById('sched-tbody').innerHTML = SCHEDULE.map(item => `
     <tr>
-      <td><span class="tag ${item.type === 'Session' ? 'tag-session' : 'tag-event'}">${item.type}</span></td>
+      <td><span class="tag ${item.type==='Session'?'tag-session':'tag-event'}">${item.type}</span></td>
       <td>${item.detail}</td>
-      <td>${item.time}</td>
-      <td>${item.type === 'Session'
-        ? `<button class="btn btn-secondary" style="font-size:11px;padding:5px 12px" onclick="openActiveSess('${item.detail}')">Open</button>`
-        : '—'}</td>
-    </tr>
-  `).join('');
+      <td style="color:var(--muted)">${item.time}</td>
+      <td>${item.type==='Session' ? `<button class="btn btn-secondary" style="font-size:11px;padding:4px 10px" onclick="openActiveSess('${item.detail}')">Open</button>` : '—'}</td>
+    </tr>`).join('');
 }
 
 function openActiveSess(name) {
-  document.getElementById('active-student').textContent = name;
+  document.getElementById('sess-student').textContent = name;
   document.getElementById('sess-rec').value = '';
   document.getElementById('sess-notes').value = '';
   cTab('session', null);
 }
 
 function finishSession() {
-  const name  = document.getElementById('active-student').textContent;
+  const name = document.getElementById('sess-student').textContent;
   const topic = document.getElementById('sess-topic').value;
-  HISTORY.unshift({ student: name, topic, date: new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}), status: 'Finished' });
+  HISTORY.unshift({ student:name, topic, date:new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}), status:'Finished' });
   toast(`Session with ${name} marked as finished.`, 'success');
   cTab('schedule', null);
 }
 
 function renderHist() {
-  const tbody = document.getElementById('hist-tbody');
-  tbody.innerHTML = HISTORY.length
-    ? HISTORY.map(h => `<tr><td>${h.student}</td><td>${h.topic}</td><td>${h.date}</td><td><span class="tag tag-finished">${h.status}</span></td></tr>`).join('')
-    : '<tr><td colspan="4" style="text-align:center;padding:32px;color:var(--muted)">No history yet.</td></tr>';
+  const tb = document.getElementById('hist-tbody');
+  tb.innerHTML = HISTORY.length
+    ? HISTORY.map(h => `<tr><td>${h.student}</td><td style="color:var(--muted)">${h.topic}</td><td style="color:var(--muted)">${h.date}</td><td><span class="tag tag-finished">${h.status}</span></td></tr>`).join('')
+    : '<tr><td colspan="4" style="text-align:center;padding:28px;color:var(--muted)">No history yet.</td></tr>';
 }
 
-function simulateIncoming() {
-  showNotif('Incoming Session', 'Session request from <strong>Jake Doe</strong>', false, () => openActiveSess('Jake Doe'));
-}
-function simulateCancel() {
-  showNotif('Session Cancelled', '<strong>Maria Santos</strong> cancelled their booking.', true, null);
-}
-
-function showNotif(title, msg, isCancel, cb) {
-  document.querySelectorAll('.notif-pop').forEach(n => n.remove());
-  const el = document.createElement('div');
-  el.className = 'notif-pop' + (isCancel ? ' cancel-pop' : '');
-  el.innerHTML = `
-    <div class="np-title">${title}</div>
-    <div class="np-msg">${msg}</div>
-    <div class="np-btns">
-      ${cb ? `<button class="btn btn-primary" style="font-size:13px;padding:9px 18px" onclick="this.closest('.notif-pop').remove();(${cb.toString()})()">Open</button>` : ''}
-      <button class="btn btn-secondary" style="font-size:13px;padding:9px 18px" onclick="this.closest('.notif-pop').remove()">Dismiss</button>
-    </div>`;
-  document.body.appendChild(el);
-  setTimeout(() => { if (el.parentNode) el.remove(); }, 9000);
-}
-
-function copyField(id) {
+function copyF(id) {
   const v = document.getElementById(id)?.value;
-  if (v && navigator.clipboard) navigator.clipboard.writeText(v).then(() => toast('Copied to clipboard.', 'success'));
+  if (v && navigator.clipboard) navigator.clipboard.writeText(v).then(() => toast('Copied to clipboard.','success'));
   else toast('Nothing to copy.', 'info');
 }
 
-// ─────────────────────────────────
+// ═══════════════════════════════
 // ADMIN PORTAL
-// ─────────────────────────────────
+// ═══════════════════════════════
 function aSection(name, btn) {
   document.querySelectorAll('.asec').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.sidebar .sb-item').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.sidebar .sb-it').forEach(b => b.classList.remove('active'));
   document.getElementById('asec-' + name).classList.add('active');
   btn?.classList.add('active');
 }
@@ -1039,74 +1080,80 @@ function refreshStats() {
   document.getElementById('st-b').textContent = SESSIONS.length;
 }
 
-const tagMap = { Finished:'tag-finished', Pending:'tag-pending', Cancelled:'tag-cancelled' };
+const TM = { Finished:'tag-finished', Pending:'tag-pending', Cancelled:'tag-cancelled' };
 
 function renderAdmC() {
-  document.getElementById('adm-c-tbody').innerHTML = COUNSELORS.map(c => `
+  document.getElementById('adm-c-tb').innerHTML = COUNSELORS.map(c => `
     <tr data-s="${(c.fname+' '+c.lname+' '+c.email+' '+c.dept).toLowerCase()}">
-      <td style="font-weight:700">${c.fname} ${c.lname}</td>
+      <td style="font-weight:600">${c.fname} ${c.lname}</td>
       <td style="color:var(--muted);font-size:12px">${c.email}</td>
       <td>${c.dept}</td>
-      <td><span class="badge ${c.available ? 'badge-on' : 'badge-off'}">${c.available ? 'Available' : 'Offline'}</span></td>
-      <td>
-        <span class="al" onclick="toggleCAvail(${c.id})">${c.available ? 'Set Offline' : 'Set Available'}</span>
-        &nbsp;·&nbsp;
-        <span class="al-r" onclick="confirmDel('Remove ${c.fname} ${c.lname}?',()=>delC(${c.id}))">Remove</span>
-      </td>
-    </tr>`).join('') || '<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--muted)">No counselors found.</td></tr>';
+      <td><span class="badge ${c.available?'badge-on':'badge-off'}">${c.available?'Available':'Offline'}</span></td>
+      <td><span class="al" onclick="toggleCAvail(${c.id})">${c.available?'Set Offline':'Set Available'}</span> &nbsp;·&nbsp; <span class="al-r" onclick="confirmDel('Remove ${c.fname} ${c.lname}?',()=>delC(${c.id}))">Remove</span></td>
+    </tr>`).join('') || '<tr><td colspan="5" style="text-align:center;padding:26px;color:var(--muted)">No counselors found.</td></tr>';
 }
 
 function renderAdmS() {
-  document.getElementById('adm-s-tbody').innerHTML = STUDENTS.map(s => `
+  document.getElementById('adm-s-tb').innerHTML = STUDENTS.map(s => `
     <tr data-s="${(s.fname+' '+s.lname+' '+s.studnum+' '+s.email+' '+s.course).toLowerCase()}">
-      <td style="font-weight:700">${s.fname} ${s.lname}</td>
+      <td style="font-weight:600">${s.fname} ${s.lname}</td>
       <td style="color:var(--muted);font-size:12px">${s.studnum}</td>
       <td>${s.course}</td>
       <td style="color:var(--muted);font-size:12px">${s.email}</td>
       <td>${s.year}</td>
       <td><span class="al-r" onclick="confirmDel('Remove ${s.fname} ${s.lname}?',()=>delS(${s.id}))">Remove</span></td>
-    </tr>`).join('') || '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--muted)">No students found.</td></tr>';
+    </tr>`).join('') || '<tr><td colspan="6" style="text-align:center;padding:26px;color:var(--muted)">No students found.</td></tr>';
 }
 
 function renderAdmB() {
   const list = sessionStatusFilter ? SESSIONS.filter(s => s.status === sessionStatusFilter) : SESSIONS;
-  document.getElementById('adm-b-tbody').innerHTML = list.map(s => `
+  document.getElementById('adm-b-tb').innerHTML = list.map(s => `
     <tr data-s="${(s.student+' '+s.counselor+' '+s.topic+' '+s.status).toLowerCase()}">
       <td style="color:var(--muted)">#${s.id}</td>
-      <td style="font-weight:700">${s.student}</td>
+      <td style="font-weight:600">${s.student}</td>
       <td>${s.counselor}</td>
       <td style="color:var(--muted)">${s.topic}</td>
       <td style="font-size:12px">${s.datetime}</td>
-      <td><span class="tag ${tagMap[s.status]||''}">${s.status}</span></td>
-      <td>${s.status === 'Pending'
-        ? `<span class="al" onclick="setSessionStatus(${s.id},'Finished')">Finish</span> · <span class="al-r" onclick="setSessionStatus(${s.id},'Cancelled')">Cancel</span>`
-        : '—'}</td>
-    </tr>`).join('') || '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted)">No sessions found.</td></tr>';
+      <td><span class="tag ${TM[s.status]||''}">${s.status}</span></td>
+      <td>${s.status==='Pending' ? `<span class="al" onclick="setStatus(${s.id},'Finished')">Finish</span> · <span class="al-r" onclick="setStatus(${s.id},'Cancelled')">Cancel</span>` : '—'}</td>
+    </tr>`).join('') || '<tr><td colspan="7" style="text-align:center;padding:26px;color:var(--muted)">No sessions found.</td></tr>';
 }
 
 function renderRecent() {
   document.getElementById('recent-tbody').innerHTML = [...SESSIONS].reverse().slice(0,6).map(s => `
     <tr>
       <td style="color:var(--muted)">#${s.id}</td>
-      <td style="font-weight:700">${s.student}</td>
+      <td style="font-weight:600">${s.student}</td>
       <td>${s.counselor}</td>
-      <td><span class="tag ${tagMap[s.status]||''}">${s.status}</span></td>
+      <td><span class="tag ${TM[s.status]||''}">${s.status}</span></td>
       <td style="font-size:12px;color:var(--muted)">${s.datetime}</td>
-    </tr>`).join('') || '<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--muted)">No sessions yet.</td></tr>';
+    </tr>`).join('') || '<tr><td colspan="5" style="text-align:center;padding:26px;color:var(--muted)">No sessions yet.</td></tr>';
 }
 
-function setSessionStatus(id, status) {
+function setStatus(id, status) {
   const s = SESSIONS.find(s => s.id === id);
-  if (s) { s.status = status; renderAdmB(); renderRecent(); toast(`Session #${id} marked as ${status}.`, 'success'); }
+  if (!s) return;
+  s.status = status;
+  // Fire notification to counselor when admin cancels
+  if (status === 'Cancelled') {
+    addNotification(s.counselorId, 'cancel',
+      `Admin cancelled the session with <strong>${s.student}</strong> scheduled on ${s.datetime}.`);
+  }
+  renderAdmB(); renderRecent();
+  toast(`Session #${id} marked as ${status}.`, 'success');
+  refreshNotifBadges();
 }
+
 function filterSessionStatus(v) { sessionStatusFilter = v; renderAdmB(); }
+
 function toggleCAvail(id) {
   const c = COUNSELORS.find(c => c.id === id);
   if (c) { c.available = !c.available; renderAdmC(); toast(`${c.fname}'s availability updated.`, 'success'); }
 }
+
 function confirmDel(msg, cb) {
   document.getElementById('del-msg').textContent = msg;
-  document.getElementById('del-confirm-btn').onclick = () => { cb(); closeModal('modal-del'); };
+  document.getElementById('del-btn').onclick = () => { cb(); closeModal('modal-del'); };
   openModal('modal-del');
 }
 function delC(id) { COUNSELORS = COUNSELORS.filter(c => c.id !== id); renderAdmC(); refreshStats(); toast('Counselor removed.', 'success'); }
@@ -1116,14 +1163,14 @@ function submitAddCounselor() {
   clearErrs(['ac-fn','ac-ln','ac-em','ac-dp']);
   const v = id => document.getElementById(id).value.trim();
   let ok = true;
-  if (!v('ac-fn'))        { setErr('ac-fn', true); ok = false; }
-  if (!v('ac-ln'))        { setErr('ac-ln', true); ok = false; }
-  if (!isEmail(v('ac-em'))){ setErr('ac-em', true); ok = false; }
-  if (!v('ac-dp'))        { setErr('ac-dp', true); ok = false; }
+  if (!v('ac-fn'))         { setErr('ac-fn', true); ok=false; }
+  if (!v('ac-ln'))         { setErr('ac-ln', true); ok=false; }
+  if (!isEmail(v('ac-em'))){ setErr('ac-em', true); ok=false; }
+  if (!v('ac-dp'))         { setErr('ac-dp', true); ok=false; }
   if (!ok) return;
-  COUNSELORS.push({ id: C_SEQ++, fname: v('ac-fn'), lname: v('ac-ln'), email: v('ac-em'), dept: v('ac-dp'), available: true });
+  COUNSELORS.push({ id:C_SEQ++, fname:v('ac-fn'), lname:v('ac-ln'), email:v('ac-em'), dept:v('ac-dp'), available:true });
   closeModal('modal-add-c');
-  ['ac-fn','ac-ln','ac-em','ac-dp'].forEach(id => document.getElementById(id).value = '');
+  ['ac-fn','ac-ln','ac-em','ac-dp'].forEach(id => document.getElementById(id).value='');
   renderAdmC(); refreshStats();
   toast('Counselor added.', 'success');
 }
@@ -1132,44 +1179,44 @@ function submitAddStudent() {
   clearErrs(['as-fn','as-ln','as-sn','as-em','as-co']);
   const v = id => document.getElementById(id).value.trim();
   let ok = true;
-  if (!v('as-fn'))        { setErr('as-fn', true); ok = false; }
-  if (!v('as-ln'))        { setErr('as-ln', true); ok = false; }
-  if (!v('as-sn'))        { setErr('as-sn', true); ok = false; }
-  if (!isEmail(v('as-em'))){ setErr('as-em', true); ok = false; }
-  if (!v('as-co'))        { setErr('as-co', true); ok = false; }
+  if (!v('as-fn'))         { setErr('as-fn', true); ok=false; }
+  if (!v('as-ln'))         { setErr('as-ln', true); ok=false; }
+  if (!v('as-sn'))         { setErr('as-sn', true); ok=false; }
+  if (!isEmail(v('as-em'))){ setErr('as-em', true); ok=false; }
+  if (!v('as-co'))         { setErr('as-co', true); ok=false; }
   if (!ok) return;
-  STUDENTS.push({ id: S_SEQ++, fname: v('as-fn'), lname: v('as-ln'), studnum: v('as-sn'), email: v('as-em'), course: v('as-co'), year: parseInt(document.getElementById('as-yr').value) });
+  STUDENTS.push({ id:S_SEQ++, fname:v('as-fn'), lname:v('as-ln'), studnum:v('as-sn'), email:v('as-em'), course:v('as-co'), year:parseInt(document.getElementById('as-yr').value) });
   closeModal('modal-add-s');
-  ['as-fn','as-ln','as-sn','as-em','as-co'].forEach(id => document.getElementById(id).value = '');
+  ['as-fn','as-ln','as-sn','as-em','as-co'].forEach(id => document.getElementById(id).value='');
   renderAdmS(); refreshStats();
   toast('Student added.', 'success');
 }
 
-// ─────────────────────────────────
+// ═══════════════════════════════
 // TABLE SEARCH
-// ─────────────────────────────────
-function filterTbl(tbodyId, q) {
+// ═══════════════════════════════
+function filterTbl(tbId, q) {
   const sq = q.toLowerCase();
-  document.getElementById(tbodyId).querySelectorAll('tr').forEach(row => {
-    row.style.display = !sq || (row.getAttribute('data-s') || '').includes(sq) ? '' : 'none';
+  document.getElementById(tbId).querySelectorAll('tr').forEach(r => {
+    r.style.display = !sq || (r.getAttribute('data-s')||'').includes(sq) ? '' : 'none';
   });
 }
 
-// ─────────────────────────────────
+// ═══════════════════════════════
 // CLOCK
-// ─────────────────────────────────
-function updateClock() {
-  const el = document.getElementById('kiosk-clock');
+// ═══════════════════════════════
+function tickClock() {
+  const el = document.getElementById('k-clock');
   if (el) el.textContent = new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true});
 }
-setInterval(updateClock, 1000);
-updateClock();
+setInterval(tickClock, 1000);
+tickClock();
 
-// ─────────────────────────────────
+// ═══════════════════════════════
 // INIT
-// ─────────────────────────────────
+// ═══════════════════════════════
 renderCounselors();
-setTodayLabel();
+setTodayLbl();
 </script>
 </body>
 </html>
